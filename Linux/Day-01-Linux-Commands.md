@@ -1,510 +1,585 @@
 # Day 01 – Linux Commands for Backend Development
 
-**Objective:** Learn essential Linux commands for filesystem navigation, file management, searching, permissions, process management and disk monitoring.
+**Environment:** Fedora Workstation 45 (running on UTM) · Shell: `bash` · Terminal: Ptyxis
+**Date:** 17 Nov 2026
+**Objective:** Learn essential Linux commands for filesystem navigation, file management, searching, log analysis, permissions, process management and disk monitoring, with a backend (Django-style) workflow in mind.
+
+---
+
+## Table of Contents
+
+1. [Filesystem Navigation](#1-filesystem-navigation)
+2. [File Management](#2-file-management)
+3. [Viewing and Writing File Content](#3-viewing-and-writing-file-content)
+4. [Searching and Log Analysis](#4-searching-and-log-analysis)
+5. [Permissions and Ownership](#5-permissions-and-ownership)
+6. [Process Management](#6-process-management)
+7. [Disk Management](#7-disk-management)
+8. [Important Linux Operators](#8-important-linux-operators)
+9. [Practical Backend Use Cases](#9-practical-backend-use-cases)
+10. [Hands-on Practice Log (Annotated)](#10-hands-on-practice-log-annotated)
+11. [Mistakes and Lessons Learned](#11-mistakes-and-lessons-learned)
+12. [Quick Cheat Sheet](#12-quick-cheat-sheet)
+13. [Key Learnings](#13-key-learnings)
+
+---
 
 ## 1. Filesystem Navigation
 
-| Command | Description | Syntax |
+| Command | Description | Common Syntax | Notes |
+|---|---|---|---|
+| `pwd` | Print the current working directory | `pwd` | Shows the absolute path, e.g. `/home/shivendra/linux-practice` |
+| `ls` | List files and directories | `ls -la` | `-l` long format, `-a` include hidden files, `-h` human-readable sizes |
+| `cd` | Change directory | `cd project/` | `cd` alone or `cd ~` goes home; `cd -` returns to the previous directory |
+| `mkdir` | Create directories | `mkdir -p backend/apps` | `-p` creates parent directories and does not fail if they exist |
+| `touch` | Create an empty file (or update its timestamp) | `touch app.py` | Useful for quickly scaffolding files |
+
+### Useful `ls` flags
+
+| Flag | Meaning |
+|---|---|
+| `-l` | Long listing (permissions, owner, size, date) |
+| `-a` | Show hidden files (names starting with `.`) |
+| `-h` | Human-readable sizes (K, M, G), used with `-l` |
+| `-la` | Long listing including hidden files |
+| `-t` | Sort by modification time |
+| `-R` | Recursive listing |
+
+### Reading `ls -l` output
+
+```text
+drwxr-xr-x. 1 shivendra shivendra  80 Nov 17 10:42 logs
+-rw-r--r--. 1 shivendra shivendra   0 Nov 17 10:41 notes.txt
+```
+
+| Part | Meaning |
+|---|---|
+| `d` / `-` | First character: `d` = directory, `-` = regular file |
+| `rwxr-xr-x` | Permissions for owner, group, others (3 characters each) |
+| `.` | SELinux security context present (Fedora/RHEL feature) |
+| `1` | Hard link count |
+| `shivendra shivendra` | Owner and group |
+| `80` | Size in bytes (use `-h` for K/M/G) |
+| `Nov 17 10:42` | Last modified time |
+| `logs` | File or directory name |
+
+### Path types
+
+| Type | Example | Description |
 |---|---|---|
-| `pwd` | Display current directory | `pwd` |
-| `ls` | List files and directories | `ls -la` |
-| `cd` | Change directory | `cd project/` |
-| `mkdir` | Create directories | `mkdir -p backend/apps` |
-| `touch` | Create an empty file | `touch app.py` |
+| Absolute path | `/home/shivendra/linux-practice` | Starts from root `/`, works from anywhere |
+| Relative path | `../logs` | Relative to the current directory |
+| Home shortcut | `~/Desktop` | `~` expands to `/home/<user>` |
+
+> **Linux is case-sensitive.** `Desktop` and `desktop` are different names.
+
+---
 
 ## 2. File Management
 
-| Command | Description | Syntax |
-|---|---|---|
-| `cp` | Copy files/directories | `cp -r source/ destination/` |
-| `mv` | Move or rename files | `mv old.py new.py` |
-| `rm` | Remove files/directories | `rm -r folder/` |
-| `cat` | Display file contents | `cat settings.py` |
-| `less` | Read large files page by page | `less application.log` |
+| Command | Description | Common Syntax | Notes |
+|---|---|---|---|
+| `cp` | Copy files/directories | `cp -r source/ destination/` | `-r` is required for directories |
+| `mv` | Move or rename | `mv old.py new.py` | Same command for both operations |
+| `rm` | Remove files/directories | `rm -r folder/` | **No recycle bin. Deleted means gone.** |
+| `cat` | Display file contents | `cat settings.py` | Best for small files; can combine several files |
+| `less` | Read large files page by page | `less application.log` | `q` quit, `/word` search, `Space` next page, `b` previous page, `G` end, `g` start |
 
-**Important:** `>` overwrites file contents, whereas `>>` appends content.
+### Safe deletion
 
-```bash
-echo "Server started" > app.log
-echo "New request received" >> app.log
-```
-
-## 3. Searching and Log Analysis
-
-| Command | Description | Syntax |
-|---|---|---|
-| `grep` | Search text inside files | `grep -in "error" app.log` |
-| `find` | Search files/directories | `find . -name "*.py"` |
-| `head` | Display first lines | `head -n 20 app.log` |
-| `tail` | Display last lines | `tail -n 50 app.log` |
-
-Useful log monitoring:
-
-```bash
-tail -f application.log
-grep -rn "ERROR" logs/
-```
-
-## 4. Permissions and Ownership
-
-| Command | Description | Syntax |
-|---|---|---|
-| `chmod` | Change file permissions | `chmod 755 deploy.sh` |
-| `chown` | Change file ownership | `sudo chown user:group file.py` |
-
-**Permission reference:**
-
-- Read (`r`) = 4
-- Write (`w`) = 2
-- Execute (`x`) = 1
-- `755` = Owner: RWX, Group/Others: RX
-- `644` = Owner: RW, Group/Others: R
-
-## 5. Process Management
-
-| Command | Description | Syntax |
-|---|---|---|
-| `ps` | Display running processes | `ps aux` |
-| `top` | Monitor processes in real time | `top` |
-| `kill` | Send a signal to a process | `kill PID` |
-| `lsof` | List open files and inspect port usage | `lsof -i :8000` |
-
-Useful process commands:
-
-```bash
-ps aux | grep python
-pgrep -af python
-kill PID
-kill -9 PID
-```
-
-**Note:** Prefer normal termination using `kill PID`. Use `kill -9` only when necessary.
-
-## 6. Disk Management
-
-| Command | Description | Syntax |
-|---|---|---|
-| `df` | Display filesystem disk usage | `df -h` |
-| `du` | Display directory/file space usage | `du -sh project/` |
-
-Useful disk commands:
-
-```bash
-df -h
-du -sh .
-du -h -d 1 . | sort -h
-```
-
-## 7. Important Linux Operators
-
-| Operator | Purpose |
+| Command | Behaviour |
 |---|---|
-| `.` | Current directory |
-| `..` | Parent directory |
-| `~` | Home directory |
-| `*` | Wildcard |
-| `>` | Redirect and overwrite |
-| `>>` | Redirect and append |
-| `\|` | Pipe output to another command |
-| `&&` | Execute next command if previous succeeds |
-| `;` | Execute commands sequentially |
-| `sudo` | Execute with elevated privileges |
+| `rm file.txt` | Deletes immediately |
+| `rm -i file.txt` | Asks for confirmation before deleting |
+| `rm -r folder/` | Deletes a directory and its contents recursively |
+| `rm -rf folder/` | Force + recursive, no prompts (**dangerous**, double-check the path) |
 
-## 8. Practical Backend Use Cases
-
-**1. Locate Django settings file**
+### Copy, move and rename patterns
 
 ```bash
-find . -name "settings.py"
-```
-
-**2. Search application errors**
-
-```bash
-grep -in "error" application.log
-```
-
-**3. Monitor live application logs**
-
-```bash
-tail -f application.log
-```
-
-**4. Identify a process using port 8000**
-
-```bash
-lsof -i :8000
-```
-
-**5. Terminate a process**
-
-```bash
-kill PID
-```
-
-**6. Check server disk space**
-
-```bash
-df -h
-```
-
-**7. Check project directory size**
-
-```bash
-du -sh project/
-```
-
-**8. Make a deployment script executable**
-
-```bash
-chmod +x deploy.sh
+cp notes.txt backup-notes.txt         # copy file
+cp python.txt projects/               # copy into a directory
+cp -r projects backup-projects        # copy a directory recursively
+mv notes.txt mynotes.txt              # rename
+mv mynotes.txt logs/                  # move into a directory
+mv logs/mynotes.txt notes.txt         # move back (and rename)
 ```
 
 ---
 
-### Key Learnings
+## 3. Viewing and Writing File Content
 
-- Understood Linux filesystem navigation and directory structures.
-- Practised creating, copying, moving and deleting files.
-- Learned to search files and analyse application logs.
-- Understood Linux permissions and ownership.
-- Learned to inspect, monitor and terminate processes.
-- Practised checking filesystem and directory disk usage.
-- Explored practical Linux commands used in backend development and server troubleshooting.
+### Redirection
 
-**Day 01 Status:** Completed – Linux Command Fundamentals.
+| Operator | Behaviour |
+|---|---|
+| `>` | Writes output to a file and **overwrites** existing content |
+| `>>` | **Appends** output to the end of a file |
 
-Terminals logs: 
-shivendra@fedora:~$ cd desktop
-bash: cd: desktop: No such file or directory
-shivendra@fedora:~$ mkdir linux-practice
-shivendra@fedora:~$ cd linux-practice
-shivendra@fedora:~/linux-practice$ touch notes.txt
-shivendra@fedora:~/linux-practice$ touch python.txt
-shivendra@fedora:~/linux-practice$ touch linux.txt
-shivendra@fedora:~/linux-practice$ mkdir projects
-shivendra@fedora:~/linux-practice$ mkdir logs
-shivendra@fedora:~/linux-practice$ ls
-linux.txt  logs  notes.txt  projects  python.txt
-shivendra@fedora:~/linux-practice$ ls -l
-total 0
--rw-r--r--. 1 shivendra shivendra 0 Nov 17 10:41 linux.txt
-drwxr-xr-x. 1 shivendra shivendra 0 Nov 17 10:42 logs
--rw-r--r--. 1 shivendra shivendra 0 Nov 17 10:41 notes.txt
-drwxr-xr-x. 1 shivendra shivendra 0 Nov 17 10:42 projects
--rw-r--r--. 1 shivendra shivendra 0 Nov 17 10:41 python.txt
-shivendra@fedora:~/linux-practice$ ls a
-ls: cannot access 'a': No such file or directory
-shivendra@fedora:~/linux-practice$ ls -lh
-total 0
--rw-r--r--. 1 shivendra shivendra 0 Nov 17 10:41 linux.txt
-drwxr-xr-x. 1 shivendra shivendra 0 Nov 17 10:42 logs
--rw-r--r--. 1 shivendra shivendra 0 Nov 17 10:41 notes.txt
-drwxr-xr-x. 1 shivendra shivendra 0 Nov 17 10:42 projects
--rw-r--r--. 1 shivendra shivendra 0 Nov 17 10:41 python.txt
-shivendra@fedora:~/linux-practice$ ls -la
-total 0
-drwxr-xr-x. 1 shivendra shivendra  80 Nov 17 10:42 .
-drwx------. 1 shivendra shivendra 348 Nov 17 10:40 ..
--rw-r--r--. 1 shivendra shivendra   0 Nov 17 10:41 linux.txt
-drwxr-xr-x. 1 shivendra shivendra   0 Nov 17 10:42 logs
--rw-r--r--. 1 shivendra shivendra   0 Nov 17 10:41 notes.txt
-drwxr-xr-x. 1 shivendra shivendra   0 Nov 17 10:42 projects
--rw-r--r--. 1 shivendra shivendra   0 Nov 17 10:41 python.txt
-shivendra@fedora:~/linux-practice$ ls project
-ls: cannot access 'project': No such file or directory
-shivendra@fedora:~/linux-practice$ ls projects
-shivendra@fedora:~/linux-practice$ cd projects
-shivendra@fedora:~/linux-practice/projects$ cd ..
-shivendra@fedora:~/linux-practice$ cd /
-shivendra@fedora:/$ cd ~
-shivendra@fedora:~$ cd linux-practice
-shivendra@fedora:~/linux-practice$ cd -
-/home/shivendra
-shivendra@fedora:~$ cd linux-practice
-shivendra@fedora:~/linux-practice$ cd ../logs
-bash: cd: ../logs: No such file or directory
-shivendra@fedora:~/linux-practice$ cd ~/Desktop
-shivendra@fedora:~/Desktop$ cd ..
-shivendra@fedora:~$ cd linux-practice
-shivendra@fedora:~/linux-practice$ pwd
-/home/shivendra/linux-practice
-shivendra@fedora:~/linux-practice$ mkdir -p project/src/controller
-shivendra@fedora:~/linux-practice$ ls
-linux.txt  logs  notes.txt  project  projects  python.txt
-shivendra@fedora:~/linux-practice$ ls project
-src
-shivendra@fedora:~/linux-practice$ ls -la
-total 0
-drwxr-xr-x. 1 shivendra shivendra  94 Nov 17 11:11 .
-drwx------. 1 shivendra shivendra 348 Nov 17 10:40 ..
--rw-r--r--. 1 shivendra shivendra   0 Nov 17 10:41 linux.txt
-drwxr-xr-x. 1 shivendra shivendra   0 Nov 17 10:42 logs
--rw-r--r--. 1 shivendra shivendra   0 Nov 17 10:41 notes.txt
-drwxr-xr-x. 1 shivendra shivendra   6 Nov 17 11:11 project
-drwxr-xr-x. 1 shivendra shivendra   0 Nov 17 10:42 projects
--rw-r--r--. 1 shivendra shivendra   0 Nov 17 10:41 python.txt
-shivendra@fedora:~/linux-practice$ ls project -la
-total 0
-drwxr-xr-x. 1 shivendra shivendra  6 Nov 17 11:11 .
-drwxr-xr-x. 1 shivendra shivendra 94 Nov 17 11:11 ..
-drwxr-xr-x. 1 shivendra shivendra 20 Nov 17 11:11 src
-shivendra@fedora:~/linux-practice$ cp notes.txt backup-notes.txt
-shivendra@fedora:~/linux-practice$ ls
-backup-notes.txt  linux.txt  logs  notes.txt  project  projects  python.txt
-shivendra@fedora:~/linux-practice$ cp python.txt projects/
-shivendra@fedora:~/linux-practice$ ls projects
-python.txt
-shivendra@fedora:~/linux-practice$ cp -r projects backup-projects
-shivendra@fedora:~/linux-practice$ ls
-backup-notes.txt  backup-projects  linux.txt  logs  notes.txt  project  projects  python.txt
-shivendra@fedora:~/linux-practice$ mv notes.txt mynotes.txt
-shivendra@fedora:~/linux-practice$ ls
-backup-notes.txt  backup-projects  linux.txt  logs  mynotes.txt  project  projects  python.txt
-shivendra@fedora:~/linux-practice$ mv mynotes.txt logs/
-shivendra@fedora:~/linux-practice$ ls logs
-mynotes.txt
-shivendra@fedora:~/linux-practice$ ls
-backup-notes.txt  backup-projects  linux.txt  logs  project  projects  python.txt
-shivendra@fedora:~/linux-practice$ mv logs/mynotes.txt notes.txt
-shivendra@fedora:~/linux-practice$ ls
-backup-notes.txt  backup-projects  linux.txt  logs  notes.txt  project  projects  python.txt
-shivendra@fedora:~/linux-practice$ ls logs
-shivendra@fedora:~/linux-practice$ rm python.txt
-shivendra@fedora:~/linux-practice$ rm -i linux.txt
-rm: remove regular empty file 'linux.txt'? y
-shivendra@fedora:~/linux-practice$ rm -r backup-projects
-shivendra@fedora:~/linux-practice$ ls
-backup-notes.txt  logs  notes.txt  project  projects
-shivendra@fedora:~/linux-practice$ echo "learning linux commands" > notes.txt
-shivendra@fedora:~/linux-practice$ cat notes.txt
-learning linux commands
-shivendra@fedora:~/linux-practice$ echo "add in backup notes.txt" > backup-notes.txt
-shivendra@fedora:~/linux-practice$ cat notes.txt backup-notes.txt
-learning linux commands
-add in backup notes.txt
-shivendra@fedora:~/linux-practice$ cat > notes.txt
-hello from shivendra , i am learning the linux commandsshivendra@fedora:~/linux-practice$ 
-shivendra@fedora:~/linux-practice$ cat notes.txt
-hello from shivendra , i am learning the linux commandsshivendra@fedora:~/linux-practice$ 
-shivendra@fedora:~/linux-practice$ cat >> notes.txt
-learning the distinction between using > >> shivendra@fedora:~/linux-practice$ 
-shivendra@fedora:~/linux-practice$ cat notes.txt
-hello from shivendra , i am learning the linux commandslearning the distinction between using > >> shivendra@fedora:~/linux-practice$ for i in $(seq 1 500); do echo "Line $i: Fedora on UTM is running Linux practice with less command"; done > ~/practice.txt
-shivendra@fedora:~/linux-practice$ ls
-backup-notes.txt  logs  notes.txt  project  projects
-shivendra@fedora:~/linux-practice$ less -/practice.txt
-There is no -/ option ("less --help" for help)
-Missing filename ("less --help" for help)
-shivendra@fedora:~/linux-practice$ touch practice.txt
-shivendra@fedora:~/linux-practice$ for i in $(seq 1 500); do echo "Line $i: Fedora on UTM is running Linux practice with less command"; done > ~/practice.txt
-shivendra@fedora:~/linux-practice$ ls
-backup-notes.txt  logs  notes.txt  practice.txt  project  projects
-shivendra@fedora:~/linux-practice$ less practice.txt
-shivendra@fedora:~/linux-practice$ echo "Python is easy" > python.txt
-echo "Linux is powerful" >> python.txt
-echo "Python supports Django" >> python.txt
-echo "Django uses Python" >> python.tx
-shivendra@fedora:~/linux-practice$ ls
-backup-notes.txt  logs  notes.txt  practice.txt  project  projects  python.tx  python.txt
-shivendra@fedora:~/linux-practice$ grep "Python" python.txt
-Python is easy
-Python supports Django
-shivendra@fedora:~/linux-practice$ grep -n "Python" python.txt
-1:Python is easy
-3:Python supports Django
-shivendra@fedora:~/linux-practice$ grep -v "Python" python.txt
-Linux is powerful
-shivendra@fedora:~/linux-practice$ find . -name "python.txt"
-./projects/python.txt
-./python.txt
-shivendra@fedora:~/linux-practice$ find . -name "*.py"
-shivendra@fedora:~/linux-practice$ touch hello.py
-shivendra@fedora:~/linux-practice$ find . -name "*.py"
-./hello.py
-shivendra@fedora:~/linux-practice$ find . -type d
-.
-./projects
-./logs
-./project
-./project/src
-top - 14:18:50 up  4:05,  1 user,  load average: 0.23, 0.10, 0.05
-Tasks: 240 total, 1 running, 239 sleep, 0 d-sleep, 0 stopped, 0 zombie
-%Cpu(s):  3.0 us,  0.3 sy,  0.0 ni, 96.3 id,  0.0 wa,  0.2 hi,  0.1 si,  0.0 st 
-MiB Mem :   3886.1 total,    255.8 free,   2125.5 used,   1874.7 buff/cache     
-MiB Swap:   3886.0 total,   2443.2 free,   1442.8 used.   1760.6 avail Mem 
+```bash
+echo "Server started" > app.log          # creates / overwrites
+echo "New request received" >> app.log   # appends
+```
 
-    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND                              
-   8757 shivend+  20   0 1722052 606916 184504 S   6.2  15.3   1:52.51 ptyxis                               
-   2353 shivend+  20   0 4355440 591372 149992 S   4.6  14.9  18:10.89 gnome-shell                          
-  11022 shivend+  20   0  235880   5552   3440 R   0.7   0.1   0:00.42 top                                  
-     45 root      39  19       0      0      0 S   0.3   0.0   0:10.43 khugepaged                           
-    619 polkitd   20   0  386272  19432   6620 S   0.3   0.5   0:01.95 polkitd                              
-      1 root      20   0   43104  16392   9284 S   0.0   0.4   0:03.86 systemd                              
-      2 root      20   0       0      0      0 S   0.0   0.0   0:00.05 kthreadd                             
-      3 root      20   0       0      0      0 S   0.0   0.0   0:00.00 pool_workqueue_release               
-      4 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker/R-rcu_gp                     
-      5 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker/R-sync_wq                    
-      6 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker/R-kvfree_rcu_reclaim         
-      7 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker/R-slub_flushwq               
-      8 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker/R-netns                      
-     10 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker/0:0H-kblockd                 
-     13 root       0 -20       0      0      0 I   0.0   0.0   0:00.00 kworker/R-mm_percpu_wq               
-     15 root      20   0       0      0      0 S   0.0   0.0   0:00.06 ksoftirqd/0                          
-     16 root      20   0       0      0      0 I   0.0   0.0   0:00.61 rcu_preempt                          
-     17 root      20   0       0      0      0 S   0.0   0.0   0:00.00 rcu_exp_par_gp_kthread_worker/0      
-     18 root      20   0       0      0      0 S   0.0   0.0   0:00.03 rcu_exp_gp_kthread_worker            
-     19 root      rt   0       0      0      0 S   0.0   0.0   0:00.00 migration/0                          
-     20 root      20   0       0      0      0 S   0.0   0.0   0:00.00 cpuhp/0                              
-     21 root      20   0       0      0      0 S   0.0   0.0   0:00.00 cpuhp/1                              
-     22 root      rt   0       0      0      0 S   0.0   0.0   0:00.01 migration/1                          
-shivendra@fedora:~/linux-practice$ df
-Filesystem     1K-blocks    Used Available Use% Mounted on
-/dev/vda3       30840832 8059808  22182272  27% /
-devtmpfs            4096       0      4096   0% /dev
-tmpfs            1989664     108   1989556   1% /dev/shm
-efivarfs              56       3        54   5% /sys/firmware/efi/efivars
-tmpfs             795868    1392    794476   1% /run
-none                1024       0      1024   0% /run/credentials/systemd-journald.service
-none                1024       0      1024   0% /run/credentials/systemd-resolved.service
-tmpfs            1989664       8   1989656   1% /tmp
-/dev/vda3       30840832 8059808  22182272  27% /home
-/dev/vda2        1992552  716032   1155280  39% /boot
-/dev/vda1         613184   38436    574748   7% /boot/efi
-tmpfs               1024       0      1024   0% /run/stratisd/ns_mounts
-tmpfs             397932     116    397816   1% /run/user/1000
-/dev/sda1        2886306 2886306         0 100% /run/media/shivendra/Fedora-WS-Live-45
-shivendra@fedora:~/linux-practice$ df -h
-Filesystem      Size  Used Avail Use% Mounted on
-/dev/vda3        30G  7.7G   22G  27% /
-devtmpfs        4.0M     0  4.0M   0% /dev
-tmpfs           1.9G  108K  1.9G   1% /dev/shm
-efivarfs         56K  2.8K   54K   5% /sys/firmware/efi/efivars
-tmpfs           778M  1.4M  776M   1% /run
-none            1.0M     0  1.0M   0% /run/credentials/systemd-journald.service
-none            1.0M     0  1.0M   0% /run/credentials/systemd-resolved.service
-tmpfs           1.9G  8.0K  1.9G   1% /tmp
-/dev/vda3        30G  7.7G   22G  27% /home
-/dev/vda2       2.0G  700M  1.2G  39% /boot
-/dev/vda1       599M   38M  562M   7% /boot/efi
-tmpfs           1.0M     0  1.0M   0% /run/stratisd/ns_mounts
-tmpfs           389M  116K  389M   1% /run/user/1000
-/dev/sda1       2.8G  2.8G     0 100% /run/media/shivendra/Fedora-WS-Live-45
-shivendra@fedora:~/linux-practice$ du -sh
-16K	.
-shivendra@fedora:~/linux-practice$ du -sh .
-16K	.
-shivendra@fedora:~/linux-practice$ cd ~m
-bash: cd: ~m: No such file or directory
-shivendra@fedora:~/linux-practice$ cd ~n
-bash: cd: ~n: No such file or directory
-shivendra@fedora:~/linux-practice$ cd ~h
-bash: cd: ~h: No such file or directory
-shivendra@fedora:~/linux-practice$ cd ~
+### Writing with `cat`
 
+```bash
+cat > notes.txt      # type text, then press Ctrl+D to save (overwrites)
+cat >> notes.txt     # type text, then press Ctrl+D to save (appends)
+cat notes.txt backup-notes.txt   # print several files one after another
+```
 
-Practice:
-shivendra@fedora:~$ mkdir developer-workspace
-shivendra@fedora:~$ cd developer-workspace
-shivendra@fedora:~/developer-workspace$ mkdir frontend backend database logs
-shivendra@fedora:~/developer-workspace$ mkdir -p backend/apps/accounts
-shivendra@fedora:~/developer-workspace$ touch backend/manage.py
-shivendra@fedora:~/developer-workspace$ touch backend/requirements.txt
-shivendra@fedora:~/developer-workspace$ touch frontend/index.html
-shivendra@fedora:~/developer-workspace$ touch logs/application.log
-shivendra@fedora:~/developer-workspace$ touch database/schema.sql
-shivendra@fedora:~/developer-workspace$ ls -la
-total 0
-drwxr-xr-x. 1 shivendra shivendra  54 Nov 17 14:58 .
-drwx------. 1 shivendra shivendra 410 Nov 17 14:57 ..
-drwxr-xr-x. 1 shivendra shivendra  58 Nov 17 14:59 backend
-drwxr-xr-x. 1 shivendra shivendra  20 Nov 17 15:00 database
-drwxr-xr-x. 1 shivendra shivendra  20 Nov 17 14:59 frontend
-drwxr-xr-x. 1 shivendra shivendra  30 Nov 17 15:00 logs
-shivendra@fedora:~/developer-workspace$ find . -type f
-./frontend/index.html
-./backend/manage.py
-./backend/requirements.txt
-./database/schema.sql
-./logs/application.log
-shivendra@fedora:~/developer-workspace$ find . -type d
-.
-./frontend
-./backend
-./backend/apps
-./backend/apps/accounts
-./database
-./logs
-shivendra@fedora:~/developer-workspace$ pwd
-/home/shivendra/developer-workspace
-shivendra@fedora:~/developer-workspace$ echo "Learning linux for backend Development"> backend/notes.txt
-shivendra@fedora:~/developer-workspace$ ls backend
-apps  manage.py  notes.txt  requirements.txt
-shivendra@fedora:~/developer-workspace$ cp backend/notes.txt backend/backup_notes.txt
-shivendra@fedora:~/developer-workspace$ ls backend
-apps  backup_notes.txt  manage.py  notes.txt  requirements.txt
-shivendra@fedora:~/developer-workspace$ cat backend/notes.txt
-Learning linux for backend Development
-shivendra@fedora:~/developer-workspace$ less backend/backup_notes.txt
-shivendra@fedora:~/developer-workspace$ mv backend/backup_notes.txt backend/final_notes.txt
-shivendra@fedora:~/developer-workspace$ ls backend
-apps  final_notes.txt  manage.py  notes.txt  requirements.txt
-shivendra@fedora:~/developer-workspace$ echo "INFO Server Started"> logs/application.log
-shivendra@fedora:~/developer-workspace$ echo "Error Database connection failed">> logs/application.log
-shivendra@fedora:~/developer-workspace$ echo "INFO User Loggedin">> logs/application.log
-shivendra@fedora:~/developer-workspace$ echo "Error Invalid Credential" >> logs/application.log
-shivendra@fedora:~/developer-workspace$ cat logs/application.log
-INFO Server Started
-Error Database connection failed
-INFO User Loggedin
-Error Invalid Credential
-shivendra@fedora:~/developer-workspace$ grep "ERROR" logs/application.log
-shivendra@fedora:~/developer-workspace$ grep "Error" logs/application.log
-Error Database connection failed
-Error Invalid Credential
-shivendra@fedora:~/developer-workspace$ grep -in "error" logs/application.log
-2:Error Database connection failed
-4:Error Invalid Credential
-shivendra@fedora:~/developer-workspace$ grep -ic "error" logs/application.log
-2
-shivendra@fedora:~/developer-workspace$ find . -name "*.log"
-./logs/application.log
-shivendra@fedora:~/developer-workspace$ touch backend/deploy.sh
-shivendra@fedora:~/developer-workspace$ ls -l backend/deploy.sh
--rw-r--r--. 1 shivendra shivendra 0 Nov 17 15:15 backend/deploy.sh
-shivendra@fedora:~/developer-workspace$ chmod 755 backend/deploy.sh
-shivendra@fedora:~/developer-workspace$ ls -l backend/deploy.sh
--rwxr-xr-x. 1 shivendra shivendra 0 Nov 17 15:15 backend/deploy.sh
-shivendra@fedora:~/developer-workspace$ chmod 644 backend/deploy.sh
-shivendra@fedora:~/developer-workspace$ ls -l backend/deploy.sh
--rw-r--r--. 1 shivendra shivendra 0 Nov 17 15:15 backend/deploy.sh
-shivendra@fedora:~/developer-workspace$ ps aux | grep sleep
-shivend+   11673  0.0  0.0 232120  2100 pts/0    S+   15:18   0:00 sleep 300
-shivend+   11677 50.0  0.0 232500  2300 pts/1    S+   15:19   0:00 grep --color=auto sleep
-shivendra@fedora:~/developer-workspace$ kill 11673
-shivendra@fedora:~/developer-workspace$ ps aux | grep sleep
-shivend+   11693  0.0  0.0 233136  2292 pts/1    S+   15:20   0:00 grep --color=auto sleep
-shivendra@fedora:~/developer-workspace$ df -h .
-Filesystem      Size  Used Avail Use% Mounted on
-/dev/vda3        30G  7.7G   22G  27% /home
-shivendra@fedora:~/developer-workspace$ df -h
-Filesystem      Size  Used Avail Use% Mounted on
-/dev/vda3        30G  7.7G   22G  27% /
-devtmpfs        4.0M     0  4.0M   0% /dev
-tmpfs           1.9G  108K  1.9G   1% /dev/shm
-efivarfs         56K  2.8K   54K   5% /sys/firmware/efi/efivars
-tmpfs           778M  1.4M  776M   1% /run
-none            1.0M     0  1.0M   0% /run/credentials/systemd-journald.service
-none            1.0M     0  1.0M   0% /run/credentials/systemd-resolved.service
-tmpfs           1.9G  8.0K  1.9G   1% /tmp
-/dev/vda3        30G  7.7G   22G  27% /home
-/dev/vda2       2.0G  700M  1.2G  39% /boot
-/dev/vda1       599M   38M  562M   7% /boot/efi
-tmpfs           1.0M     0  1.0M   0% /run/stratisd/ns_mounts
-tmpfs           389M  120K  389M   1% /run/user/1000
-/dev/sda1       2.8G  2.8G     0 100% /run/media/shivendra/Fedora-WS-Live-45
-shivendra@fedora:~/developer-workspace$ 
+> Press **Enter before Ctrl+D**. Otherwise the file has no trailing newline and the shell prompt appears on the same line as the file content (this happened in the practice log).
 
+### Generating test data with a loop
 
+```bash
+for i in $(seq 1 500); do
+  echo "Line $i: Fedora on UTM is running Linux practice with less command"
+done > ~/practice.txt
+```
 
+| Part | Meaning |
+|---|---|
+| `seq 1 500` | Generates numbers 1 to 500 |
+| `$( ... )` | Command substitution |
+| `for ... do ... done` | Loop |
+| `> ~/practice.txt` | Sends all loop output to a file in the home directory |
 
+---
+
+## 4. Searching and Log Analysis
+
+| Command | Description | Common Syntax |
+|---|---|---|
+| `grep` | Search text inside files | `grep -in "error" app.log` |
+| `find` | Search files/directories by name, type, etc. | `find . -name "*.py"` |
+| `head` | Show the first lines | `head -n 20 app.log` |
+| `tail` | Show the last lines | `tail -n 50 app.log` |
+
+### `grep` flags
+
+| Flag | Meaning | Example |
+|---|---|---|
+| *(none)* | Case-sensitive match | `grep "Python" python.txt` |
+| `-n` | Show line numbers | `grep -n "Python" python.txt` |
+| `-i` | Ignore case | `grep -i "error" logs/application.log` |
+| `-v` | Invert match (lines **not** containing the text) | `grep -v "Python" python.txt` |
+| `-c` | Count matching lines | `grep -ic "error" logs/application.log` |
+| `-r` | Search recursively through directories | `grep -rn "ERROR" logs/` |
+
+### `find` options
+
+| Option | Meaning | Example |
+|---|---|---|
+| `-name` | Match by file name (supports wildcards) | `find . -name "*.log"` |
+| `-type f` | Files only | `find . -type f` |
+| `-type d` | Directories only | `find . -type d` |
+
+### Live log monitoring
+
+```bash
+tail -f application.log        # follow a log in real time (Ctrl+C to stop)
+grep -rn "ERROR" logs/         # search every file under logs/ with line numbers
+```
+
+---
+
+## 5. Permissions and Ownership
+
+| Command | Description | Common Syntax |
+|---|---|---|
+| `chmod` | Change file permissions | `chmod 755 deploy.sh` |
+| `chown` | Change file ownership | `sudo chown user:group file.py` |
+
+### Permission values
+
+| Permission | Letter | Number |
+|---|---|---|
+| Read | `r` | 4 |
+| Write | `w` | 2 |
+| Execute | `x` | 1 |
+
+### Common modes
+
+| Mode | Symbolic | Owner | Group | Others | Typical use |
+|---|---|---|---|---|---|
+| `755` | `rwxr-xr-x` | RWX | R-X | R-X | Scripts, executables, directories |
+| `644` | `rw-r--r--` | RW- | R-- | R-- | Normal files |
+| `600` | `rw-------` | RW- | --- | --- | Private files (keys, secrets) |
+| `777` | `rwxrwxrwx` | RWX | RWX | RWX | **Avoid.** Insecure |
+
+### How the number is calculated
+
+```text
+755 → Owner: 4+2+1 = 7 (rwx)   Group: 4+0+1 = 5 (r-x)   Others: 4+0+1 = 5 (r-x)
+644 → Owner: 4+2+0 = 6 (rw-)   Group: 4+0+0 = 4 (r--)   Others: 4+0+0 = 4 (r--)
+```
+
+### Symbolic form
+
+```bash
+chmod +x deploy.sh      # add execute for everyone
+chmod u+x deploy.sh     # add execute for the owner only
+chmod go-w file.txt     # remove write from group and others
+```
+
+---
+
+## 6. Process Management
+
+| Command | Description | Common Syntax |
+|---|---|---|
+| `ps` | Show running processes | `ps aux` |
+| `top` | Monitor processes in real time | `top` (press `q` to quit) |
+| `kill` | Send a signal to a process | `kill PID` |
+| `lsof` | List open files and inspect port usage | `lsof -i :8000` |
+
+### Useful process commands
+
+```bash
+ps aux | grep python     # find python processes (the grep itself also appears)
+pgrep -af python         # cleaner: list PIDs with full command lines
+kill PID                 # polite termination (SIGTERM)
+kill -9 PID              # force kill (SIGKILL), last resort
+```
+
+### Signals
+
+| Command | Signal | Behaviour |
+|---|---|---|
+| `kill PID` | `SIGTERM` (15) | Asks the process to shut down gracefully |
+| `kill -9 PID` | `SIGKILL` (9) | Kills immediately, with no cleanup |
+
+> Prefer `kill PID`. Use `kill -9` only if the process does not respond.
+
+### Reading `ps aux`
+
+```text
+USER       PID %CPU %MEM    VSZ   RSS TTY   STAT START   TIME COMMAND
+shivend+ 11673  0.0  0.0 232120  2100 pts/0 S+   15:18   0:00 sleep 300
+```
+
+| Column | Meaning |
+|---|---|
+| `USER` | Owner of the process |
+| `PID` | Process ID (used with `kill`) |
+| `%CPU` / `%MEM` | CPU and memory usage |
+| `STAT` | State (`S` sleeping, `R` running, `+` foreground) |
+| `COMMAND` | The command that started the process |
+
+### Reading `top` (from the practice session)
+
+| Line | Meaning |
+|---|---|
+| `load average: 0.23, 0.10, 0.05` | System load over 1, 5 and 15 minutes (low = idle) |
+| `Tasks: 240 total, 1 running` | Process counts by state |
+| `%Cpu(s): ... 96.3 id` | 96.3% of CPU is idle |
+| `MiB Mem: 3886.1 total, 255.8 free` | RAM overview; `buff/cache` is reclaimable |
+| `MiB Swap: 3886.0 total, 1442.8 used` | Swap in use means RAM pressure |
+| Top processes | `ptyxis` (terminal) and `gnome-shell` (desktop) used the most memory |
+
+---
+
+## 7. Disk Management
+
+| Command | Description | Common Syntax |
+|---|---|---|
+| `df` | Show filesystem disk usage | `df -h` |
+| `du` | Show directory/file space usage | `du -sh project/` |
+
+### Flags
+
+| Flag | Meaning |
+|---|---|
+| `-h` | Human-readable sizes |
+| `-s` | Summary only (one total line) |
+| `-d 1` | Limit depth to 1 level (for `du`) |
+
+### Useful disk commands
+
+```bash
+df -h                       # all filesystems
+df -h .                     # filesystem containing the current directory
+du -sh .                    # total size of the current directory
+du -h -d 1 . | sort -h      # size of each subfolder, smallest to largest
+```
+
+### Reading `df -h` (from the practice session)
+
+| Filesystem | Size | Used | Avail | Use% | Mounted on | Comment |
+|---|---|---|---|---|---|---|
+| `/dev/vda3` | 30G | 7.7G | 22G | 27% | `/` and `/home` | Main disk; root and home share it |
+| `/dev/vda2` | 2.0G | 700M | 1.2G | 39% | `/boot` | Boot files |
+| `/dev/vda1` | 599M | 38M | 562M | 7% | `/boot/efi` | EFI system partition |
+| `tmpfs` | 1.9G | 8.0K | 1.9G | 1% | `/tmp` | Lives in RAM |
+| `/dev/sda1` | 2.8G | 2.8G | 0 | 100% | `/run/media/.../Fedora-WS-Live-45` | Installer ISO, always 100% (read-only), not a problem |
+
+---
+
+## 8. Important Linux Operators
+
+| Operator | Purpose | Example |
+|---|---|---|
+| `.` | Current directory | `find . -name "*.py"` |
+| `..` | Parent directory | `cd ..` |
+| `~` | Home directory | `cd ~` |
+| `-` | Previous directory (with `cd`) | `cd -` |
+| `*` | Wildcard (any characters) | `ls *.txt` |
+| `>` | Redirect and overwrite | `echo "x" > file` |
+| `>>` | Redirect and append | `echo "x" >> file` |
+| `\|` | Pipe output into another command | `ps aux \| grep python` |
+| `&&` | Run next command only if previous succeeds | `mkdir app && cd app` |
+| `;` | Run commands sequentially, regardless of result | `cd app; ls` |
+| `sudo` | Run with elevated privileges | `sudo chown user file` |
+
+---
+
+## 9. Practical Backend Use Cases
+
+| # | Task | Command |
+|---|---|---|
+| 1 | Locate the Django settings file | `find . -name "settings.py"` |
+| 2 | Search application errors | `grep -in "error" application.log` |
+| 3 | Count errors in a log | `grep -ic "error" application.log` |
+| 4 | Monitor live application logs | `tail -f application.log` |
+| 5 | Find the process using port 8000 | `lsof -i :8000` |
+| 6 | Terminate a process gracefully | `kill PID` |
+| 7 | Check server disk space | `df -h` |
+| 8 | Check project directory size | `du -sh project/` |
+| 9 | Make a deployment script executable | `chmod +x deploy.sh` |
+| 10 | Find the biggest folders | `du -h -d 1 . \| sort -h` |
+
+### Typical troubleshooting workflow
+
+```bash
+# 1. Is the app running and which process is it?
+ps aux | grep python
+
+# 2. Is something already using the port?
+lsof -i :8000
+
+# 3. What do the logs say?
+tail -n 50 logs/application.log
+grep -in "error" logs/application.log
+
+# 4. Is the disk full?
+df -h
+
+# 5. Stop a misbehaving process
+kill PID
+```
+
+---
+
+## 10. Hands-on Practice Log (Annotated)
+
+### Practice 1: `~/linux-practice`
+
+**Goal:** Create a workspace and practise navigation, copy/move/delete, redirection, `less`, `grep`, `find`, `top`, `df` and `du`.
+
+| Step | Commands | What it did |
+|---|---|---|
+| Create workspace | `mkdir linux-practice`, `cd linux-practice` | New working directory |
+| Create files | `touch notes.txt python.txt linux.txt` | Three empty files |
+| Create folders | `mkdir projects logs` | Two directories |
+| Inspect | `ls`, `ls -l`, `ls -lh`, `ls -la` | Compared listing formats |
+| Navigate | `cd projects`, `cd ..`, `cd /`, `cd ~`, `cd -` | Practised relative, absolute and previous-directory moves |
+| Nested dirs | `mkdir -p project/src/controller` | Created three levels in one command |
+| Copy | `cp notes.txt backup-notes.txt`, `cp python.txt projects/`, `cp -r projects backup-projects` | File, file-to-folder and recursive copy |
+| Move/rename | `mv notes.txt mynotes.txt`, `mv mynotes.txt logs/`, `mv logs/mynotes.txt notes.txt` | Rename, move, move back |
+| Delete | `rm python.txt`, `rm -i linux.txt`, `rm -r backup-projects` | Plain, interactive and recursive delete |
+| Write | `echo "..." > notes.txt`, `cat > notes.txt`, `cat >> notes.txt` | Overwrite vs append |
+| Large file | `for i in $(seq 1 500) ...` then `less practice.txt` | Generated 500 lines and paged through them |
+| Search | `grep "Python"`, `grep -n`, `grep -v` | Match, line numbers, inverted match |
+| Find | `find . -name "python.txt"`, `find . -name "*.py"`, `find . -type d` | Search by name, wildcard and type |
+| Monitor | `top` | Live process and memory view |
+| Disk | `df`, `df -h`, `du -sh`, `du -sh .` | Filesystem and directory size |
+
+**Final state of `~/linux-practice`:**
+
+```text
+linux-practice/
+├── backup-notes.txt
+├── hello.py
+├── logs/
+├── notes.txt
+├── practice.txt
+├── project/
+│   └── src/
+│       └── controller/
+├── projects/
+│   └── python.txt
+├── python.tx          ← typo file (see Mistakes section)
+└── python.txt
+```
+
+### Practice 2: `~/developer-workspace` (backend project simulation)
+
+**Goal:** Build a realistic backend project layout and run log analysis, permission and process tasks on it.
+
+```bash
+mkdir developer-workspace && cd developer-workspace
+mkdir frontend backend database logs
+mkdir -p backend/apps/accounts
+touch backend/manage.py backend/requirements.txt
+touch frontend/index.html logs/application.log database/schema.sql
+```
+
+**Resulting structure:**
+
+```text
+developer-workspace/
+├── backend/
+│   ├── apps/
+│   │   └── accounts/
+│   ├── manage.py
+│   └── requirements.txt
+├── database/
+│   └── schema.sql
+├── frontend/
+│   └── index.html
+└── logs/
+    └── application.log
+```
+
+**Verification:** `find . -type f` listed 5 files and `find . -type d` listed 6 directories (including `.`).
+
+#### Notes: copy, view, rename
+
+```bash
+echo "Learning linux for backend Development" > backend/notes.txt
+cp backend/notes.txt backend/backup_notes.txt
+cat backend/notes.txt
+less backend/backup_notes.txt
+mv backend/backup_notes.txt backend/final_notes.txt
+```
+
+#### Log analysis
+
+```bash
+echo "INFO Server Started"              > logs/application.log
+echo "Error Database connection failed" >> logs/application.log
+echo "INFO User Loggedin"               >> logs/application.log
+echo "Error Invalid Credential"         >> logs/application.log
+```
+
+| Command | Output | Lesson |
+|---|---|---|
+| `grep "ERROR" logs/application.log` | *(nothing)* | Case-sensitive: the log has `Error`, not `ERROR` |
+| `grep "Error" logs/application.log` | 2 lines | Exact case matches |
+| `grep -in "error" logs/application.log` | `2:...` and `4:...` | `-i` ignores case, `-n` shows line numbers |
+| `grep -ic "error" logs/application.log` | `2` | Counts matching lines |
+| `find . -name "*.log"` | `./logs/application.log` | Locate log files |
+
+#### Permissions on a script
+
+```bash
+touch backend/deploy.sh
+ls -l backend/deploy.sh      # -rw-r--r--  (644, not executable)
+chmod 755 backend/deploy.sh
+ls -l backend/deploy.sh      # -rwxr-xr-x  (755, executable)
+chmod 644 backend/deploy.sh
+ls -l backend/deploy.sh      # -rw-r--r--  (back to 644)
+```
+
+#### Process management
+
+Run in terminal 1:
+
+```bash
+sleep 300
+```
+
+Run in terminal 2:
+
+```bash
+ps aux | grep sleep     # shows sleep 300 (PID 11673) plus the grep itself
+kill 11673              # SIGTERM
+ps aux | grep sleep     # only the grep line remains, so the process is gone
+```
+
+#### Disk usage
+
+```bash
+df -h .     # /dev/vda3  30G  7.7G  22G  27%  /home
+df -h       # all filesystems
+```
+
+---
+
+## 11. Mistakes and Lessons Learned
+
+| # | What happened | Cause | Fix / Lesson |
+|---|---|---|---|
+| 1 | `cd desktop` → *No such file or directory* | Linux is case-sensitive; the folder is `Desktop` | Use `cd ~/Desktop`, and press **Tab** to autocomplete |
+| 2 | `ls a` → *cannot access 'a'* | Wrong path (tested on purpose) | Read error messages: they name the missing path |
+| 3 | `ls project` failed, `ls projects` worked | Directory is `projects` (plural) | Check spelling with `ls` first |
+| 4 | `cd ../logs` failed from `linux-practice` | `..` goes to the home dir, where there is no `logs` | Use `cd logs` (child) or `cd ../linux-practice/logs` |
+| 5 | `less -/practice.txt` → *no -/ option* | Typed `-/` instead of `~/` | `~/practice.txt` is the correct path |
+| 6 | First loop wrote `~/practice.txt`, but `ls` in `linux-practice` didn't show it | `~` is the home dir, not the current dir | Use `./practice.txt` or `> practice.txt` for the current dir |
+| 7 | `>> python.tx` created a stray `python.tx` file | Typo in the file name | `>>` silently creates files. Delete with `rm python.tx` |
+| 8 | `cat > notes.txt` output merged with the prompt | No Enter before Ctrl+D, so no trailing newline | Press Enter, then Ctrl+D |
+| 9 | `cd ~m`, `cd ~n`, `cd ~h` failed | `~name` means *another user's* home directory | Use `~` alone or `~/folder` |
+| 10 | `grep "ERROR"` returned nothing | grep is case-sensitive | Use `grep -i` when case is unknown |
+| 11 | `ps aux \| grep sleep` showed two lines | grep matches its own process | Use `pgrep -af sleep` or `grep "[s]leep"` |
+| 12 | `/dev/sda1` shows 100% used | Mounted Fedora live ISO (read-only) | Normal, ignore it |
+
+### Cleanup commands for the stray file
+
+```bash
+rm ~/linux-practice/python.tx
+```
+
+---
+
+## 12. Quick Cheat Sheet
+
+```bash
+# Navigation
+pwd                     ls -la                  cd ~            cd -            cd ..
+# Create
+mkdir -p a/b/c          touch file.txt
+# Copy / move / delete
+cp -r src/ dst/         mv old new              rm -i file      rm -r dir/
+# View / write
+cat file                less file               head -n 20 f    tail -n 50 f    tail -f f
+echo "x" > f            echo "x" >> f
+# Search
+grep -in "text" f       grep -rn "text" dir/    grep -v "text" f    grep -ic "text" f
+find . -name "*.py"     find . -type d          find . -type f
+# Permissions
+chmod 755 f             chmod 644 f             chmod +x f          sudo chown user:group f
+# Processes
+ps aux | grep name      pgrep -af name          top                 kill PID        kill -9 PID
+lsof -i :8000
+# Disk
+df -h                   du -sh .                du -h -d 1 . | sort -h
+```
+
+---
+
+## 13. Key Learnings
+
+- Understood Linux filesystem navigation, absolute vs relative paths, and the `.`, `..`, `~` and `-` shortcuts.
+- Practised creating, copying, moving, renaming and deleting files and directories (including `-p`, `-r`, `-i`).
+- Learned the difference between `>` (overwrite) and `>>` (append), and the risk of accidental file creation.
+- Learned to read large files with `less` and to generate test data with shell loops.
+- Learned to search file content with `grep` (`-i`, `-n`, `-v`, `-c`, `-r`) and to locate files with `find`.
+- Analysed a sample application log and understood why case sensitivity matters.
+- Understood permission notation (`rwx`, numeric modes `755`/`644`) and applied `chmod` to a script.
+- Learned to inspect and stop processes with `ps`, `top` and `kill`, and why `kill` is preferred over `kill -9`.
+- Read `df -h` and `du -sh` output to understand disk and directory usage.
+- Built a realistic backend project structure and used it for practical troubleshooting scenarios.
+- Learned from real errors: case sensitivity, typos, wrong relative paths and `~` misuse.
+
+### Next steps
+
+- Practise `lsof -i :8000` with a running dev server (e.g. `python3 -m http.server 8000`).
+- Try `sudo` with `chown` on a test file.
+- Learn `sort`, `uniq`, `wc` and `awk` for deeper log analysis.
+- Create a small shell script (`deploy.sh`) that actually runs.
+
+---
+
+**Day 01 Status:** ✅ Completed – Linux Command Fundamentals.
