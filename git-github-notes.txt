@@ -1,0 +1,811 @@
+GIT & GITHUB MASTERY — OFFICE DIARY NOTES Platform: Fedora Linux |
+Practice repository: ~/git-mastery-day Purpose: Daily Git usage, team
+collaboration, troubleshooting and interview revision
+
+============================================================ 1.
+INTRODUCTION: GIT, GITHUB AND VERSION CONTROL
+============================================================
+
+Version Control System (VCS): A system that records changes to files
+over time. It helps developers track history, compare changes, restore
+earlier versions and collaborate.
+
+Git: A distributed version control system. Every clone normally contains
+the repository history locally, so many operations can be performed
+without internet access.
+
+GitHub: A cloud platform for hosting Git repositories and collaborating
+through pull requests, issues, reviews and project tools. Git is the
+version-control tool; GitHub hosts and adds collaboration features.
+
+Git vs GitHub: - Git is the tool that tracks source-code history. -
+GitHub is an online service for hosting Git repositories. - Git can be
+used without GitHub. - GitHub repositories use Git.
+
+GIT’S MAIN AREAS: 1. Working directory: Files currently being edited. 2.
+Staging area (index): The exact changes selected for the next commit. 3.
+Local repository: Commits saved on this computer. 4. Remote repository:
+A shared repository hosted on GitHub or another server.
+
+Basic flow: Working directory -> git add -> Staging area -> git commit
+-> Local repository -> git push -> Remote repository
+
+Important: - git add stages changes; it does not create a commit. - git
+commit saves staged changes in local history. - git push publishes local
+commits to a remote. - git fetch downloads remote information without
+integrating it into the current branch. - git pull fetches and then
+integrates remote changes (usually by merge, depending on
+configuration).
+
+============================================================ 2. INITIAL
+GIT CONFIGURATION
+============================================================
+
+Check Git version: git –version
+
+Set global username: git config –global user.name “Your Name”
+
+Set global email: git config –global user.email “you@example.com”
+
+Set default initial branch: git config –global init.defaultBranch main
+
+View a setting: git config –global user.name git config –global
+user.email
+
+List configuration: git config –list
+
+Configuration levels: - –system: Applies to all users on the computer;
+usually requires admin permission. - –global: Applies to the current
+operating-system user. - –local: Applies only to the current repository
+and overrides global settings.
+
+Note: The Git commit identity is metadata. It is not the same thing as
+GitHub authentication.
+
+============================================================ 3. CREATE
+OR COPY A REPOSITORY
+============================================================
+
+Create a new local repository: mkdir my-project cd my-project git init
+
+git init: Initializes a Git repository in the current directory by
+creating the hidden .git directory. It does not upload anything to
+GitHub.
+
+Clone an existing repository: git clone
+
+Example: git clone https://github.com/username/project.git
+
+git clone: Downloads a remote repository, its tracked files and its
+available history, and creates a local working directory.
+
+Difference: - git init: Start tracking a new project locally. - git
+clone: Copy an existing Git repository from a remote location.
+
+Useful directory commands: pwd # Show current directory ls # List files
+ls -la # Include hidden files cd directory # Enter directory cd .. #
+Move one directory up mkdir folder # Create directory
+
+============================================================ 4. CHECK
+REPOSITORY STATUS
+============================================================
+
+Command: git status
+
+Purpose: Shows the current branch and the state of files in the working
+directory and staging area.
+
+Common status categories: - Untracked: Git is not tracking the file
+yet. - Modified: A tracked file has changes not staged. - Changes to be
+committed: Changes are staged. - Working tree clean: No uncommitted
+changes.
+
+Short status: git status –short
+
+Typical short-status symbols: - ?? file.txt: Untracked file. - M
+file.txt: Modified file. - A file.txt: Added file. - D file.txt: Deleted
+file. - M in the first column: Staged modification. - M in the second
+column: Unstaged modification.
+
+============================================================ 5. STAGING
+AND COMMITTING
+============================================================
+
+Stage one file: git add filename
+
+Stage several files: git add file1 file2
+
+Stage all changes in the current directory: git add .
+
+Stage tracked modifications and deletions: git add -u
+
+Stage all changes, including untracked files: git add -A
+
+Commit staged changes: git commit -m “Meaningful commit message”
+
+Example: git add readme.md git commit -m “Add project README”
+
+git add: Copies the selected version of a file’s changes into the
+staging area. It prepares the next commit.
+
+git commit: Creates a new local snapshot from the staged content.
+
+Important: - A commit contains staged changes, not automatically every
+change in the working directory. - If a file is modified after staging,
+the later modification is not included until staged again. - Write clear
+messages using an action-oriented style: “Add login endpoint”, “Fix null
+validation”, “Update README”.
+
+Amend the latest commit (use carefully): git commit –amend
+
+Change only the latest commit message: git commit –amend -m “Correct
+commit message”
+
+Caution: Amending a commit changes its hash. Avoid amending commits
+already shared with teammates unless the team agrees.
+
+============================================================ 6. VIEW
+COMMIT HISTORY
+============================================================
+
+Full history: git log
+
+Compact history: git log –oneline
+
+Show latest five commits: git log -5
+
+Show graph of all branches: git log –oneline –graph –all
+
+Show author and date: git log –pretty=fuller
+
+Useful flags: - –oneline: One-line summary per commit. - –graph: Draw
+branch and merge relationships. - –all: Include commits reachable from
+all references/branches. - -n: Limit number of commits; for example -5.
+
+Understand HEAD: HEAD normally points to the commit currently checked
+out. When on a branch, HEAD is usually attached to that branch.
+
+Example: HEAD -> main
+
+This means the current checked-out branch is main.
+
+View one commit: git show
+
+View latest commit: git show
+
+Show summary/statistics: git show –stat
+
+Show only commit subject: git show -s –format=%s
+
+Difference: - git log: Shows a list of commits. - git show: Shows
+details and changes for a particular commit.
+
+============================================================ 7. INSPECT
+CHANGES WITH DIFF
+============================================================
+
+Unstaged changes: git diff
+
+Compares working-directory changes against the staging area.
+
+Staged changes: git diff –staged git diff –cached
+
+Compares staged changes against the current commit (HEAD).
+
+All working and staged changes against HEAD: git diff HEAD
+
+Compare two branches/commits: git diff main feature/login
+
+Check whitespace errors: git diff –check
+
+Important: - git diff: What changed but has not been staged? - git diff
+–staged: What is staged for the next commit? - git diff HEAD: What is
+different from the latest commit overall?
+
+Diff symbols: - Lines starting with - were removed. - Lines starting
+with + were added. - @@ identifies the changed section (hunk).
+
+============================================================ 8. RESTORE
+FILES AND UNSTAGE CHANGES
+============================================================
+
+Unstage a file but keep its working-directory changes: git restore
+–staged filename
+
+Example: git restore –staged auth.txt
+
+This removes the file from the staging area but does not discard its
+edits.
+
+Discard unstaged changes in a tracked file: git restore filename
+
+This restores the working file from the staging area. If the index is
+clean, that normally means the last committed version.
+
+Restore a file from a specific commit: git restore –source= – filename
+
+Caution: git restore filename can discard uncommitted edits. Inspect
+with git diff before using it.
+
+Modern command separation: - git switch: Change branches. - git restore:
+Restore file contents or staging state. Older git checkout performed
+several different jobs, which is why switch and restore were introduced
+as clearer commands.
+
+============================================================ 9. REMOTE
+REPOSITORIES: GITHUB CONNECTION
+============================================================
+
+A remote is a named reference to another repository, often hosted on
+GitHub.
+
+List remote names: git remote
+
+Show remote URLs: git remote -v
+
+Add a remote named origin: git remote add origin
+
+Example: git remote add origin https://github.com/username/project.git
+
+Change remote URL: git remote set-url origin
+
+Remove a remote: git remote remove origin
+
+Show details of a remote: git remote show origin
+
+What is origin? A conventional name for the main remote repository. It
+is only a nickname; it is not a special Git server.
+
+Push current main branch: git push origin main
+
+Set upstream on first push: git push -u origin main
+
+The -u / –set-upstream flag connects the local branch to its
+remote-tracking branch. Later, plain git push and git pull can often
+infer the destination.
+
+Remote-tracking branches: origin/main
+
+This is your local record of the remote main branch. It updates when you
+fetch or pull; it is not the remote branch itself.
+
+Authentication: - HTTPS commonly uses a Personal Access Token rather
+than an account password. - SSH uses a configured SSH key. - Never paste
+tokens, passwords or private keys into chats, commits or public
+repositories.
+
+Recommended GitHub setup for an existing local project: 1. Create an
+empty GitHub repository. 2. Avoid initializing it with a README/license
+if the local project already has commits, unless you know how to
+reconcile the histories. 3. Add the remote URL using git remote add
+origin . 4. Push with git push -u origin main.
+
+============================================================ 10. FETCH,
+PULL AND PUSH
+============================================================
+
+Push local commits: git push origin main
+
+Fetch remote updates: git fetch origin
+
+git fetch: Downloads remote commits and updates remote-tracking
+references such as origin/main. It does not automatically merge those
+changes into your current branch.
+
+Inspect commits on remote main that are not on local main: git log
+–oneline main..origin/main
+
+Compare local main with remote main: git diff main origin/main
+
+Pull: git pull origin main
+
+git pull: Usually performs a fetch followed by a merge into the current
+branch. Depending on configuration/options, integration may use rebase.
+
+Difference: - fetch: Download and inspect first; no automatic
+integration. - pull: Download and integrate. - push: Upload local
+commits to the remote.
+
+Typical team workflow: 1. git switch main 2. git pull origin main 3. git
+switch -c feature/meaningful-name 4. Make code changes. 5. git status 6.
+git diff 7. git add 8. git commit -m “Describe change” 9. git push -u
+origin feature/meaningful-name 10. Open a Pull Request on GitHub. 11.
+Respond to review feedback and update the branch. 12. Merge through the
+team’s approved process.
+
+If push is rejected: - Do not immediately use –force. - Inspect the
+message and repository state. - Fetch remote updates. - Integrate the
+required changes using the team’s merge/rebase policy. - Resolve
+conflicts, test, then push. - Never force-push a shared branch without
+permission.
+
+============================================================ 11.
+BRANCHING ============================================================
+
+A branch is a movable pointer to a commit. Creating a branch does not
+normally duplicate the entire project directory or all files.
+
+Why branches? - Keep feature work separate from stable main. - Allow
+several developers to work independently. - Make code review and testing
+easier. - Reduce the risk of unfinished code entering the main branch.
+
+List local branches: git branch
+
+The * indicates the currently checked-out branch.
+
+List local and remote-tracking branches: git branch -a
+
+List remote-tracking branches only: git branch -r
+
+Show branch names and latest commit: git branch -v
+
+Create a branch without switching: git branch feature/login
+
+Create and switch to a branch: git switch -c feature/login
+
+Switch to an existing branch: git switch main
+
+Delete a merged local branch: git branch -d feature/login
+
+Force-delete a local branch: git branch -D feature/login
+
+Caution: -D can delete a branch even when Git considers it unmerged.
+Confirm the work is no longer needed.
+
+Common branch naming: feature/user-profile feature/payment-api
+bugfix/login-validation hotfix/payment-crash refactor/user-service
+practice/stash
+
+============================================================ 12. SWITCH
+VS CHECKOUT ============================================================
+
+Modern recommended commands: git switch main git switch -c feature/login
+
+Older checkout equivalents: git checkout main git checkout -b
+feature/login
+
+Difference: - git switch is designed for changing branches. - git
+restore is designed for restoring file contents. - git checkout is older
+and can switch branches or restore files, so it has multiple meanings.
+
+Use switch and restore for clearer everyday commands.
+
+============================================================ 13. MERGING
+BRANCHES ============================================================
+
+To merge feature/user-profile into main:
+
+    git switch main
+    git merge feature/user-profile
+
+Important: The branch you are currently on receives the changes from the
+branch named in git merge.
+
+Example: If you are on main and run: git merge feature/payment then
+feature/payment is merged into main.
+
+Fast-forward merge: Happens when the target branch has not diverged and
+can simply move forward to the source branch’s newer commit. Git may
+move the branch pointer without creating a merge commit.
+
+Three-way merge: Used when branches have diverged. Git uses their common
+ancestor and the two branch tips to combine changes. A merge commit is
+commonly created.
+
+Force a merge commit even when fast-forward is possible: git merge
+–no-ff feature/login
+
+Abort an in-progress merge: git merge –abort
+
+Inspect branch graph: git log –oneline –graph –all
+
+After merging, a feature branch may be deleted if team policy allows:
+git branch -d feature/login
+
+============================================================ 14. MERGE
+CONFLICTS ============================================================
+
+A merge conflict happens when Git cannot automatically combine changes.
+A common example is when two branches edit the same lines of the same
+file differently.
+
+Conflict markers can look like:
+
+    <<<<<<< HEAD
+    Welcome to Contify
+    =======
+    Welcome to Git Mastery
+    >>>>>>> feature/welcome-message
+
+Meaning: - HEAD section: The version from the branch currently checked
+out. - =======: Separates the two versions. - Incoming branch section:
+The version being merged.
+
+How to resolve: 1. Open the conflicted file. 2. Decide what the final
+correct content should be. 3. Remove all conflict markers. 4. Save the
+file. 5. Inspect the result. 6. Stage the resolved file. 7. Complete the
+merge commit if Git requires it.
+
+Example: echo “Welcome to Contify Git Development” > conflict.txt git
+add conflict.txt git commit -m “Resolve welcome message merge conflict”
+
+Abort the merge if you want to cancel: git merge –abort
+
+Do not leave conflict markers in source code.
+
+============================================================ 15. STASH:
+TEMPORARILY SAVE UNFINISHED WORK
+============================================================
+
+Use case: You are working on a feature but need to switch branches for
+urgent work. You do not want to make an incomplete commit. Stash
+temporarily shelves changes.
+
+Save tracked-file changes: git stash
+
+Save tracked and untracked files: git stash -u git stash
+–include-untracked
+
+Save with a message: git stash -u -m “WIP: profile validation”
+
+List stashes: git stash list
+
+Show summary of latest stash: git stash show
+
+Show exact patch: git stash show -p
+
+Restore latest stash and keep it in stash list: git stash apply
+
+Restore latest stash and remove it if successful: git stash pop
+
+Apply a particular stash: git stash apply stash@{1}
+
+Remove one stash: git stash drop stash@{0}
+
+Remove all stashes: git stash clear
+
+Difference: - apply: Restore changes; keep stash entry. - pop: Restore
+changes; drop stash entry if successful. - drop: Delete a stash entry
+without restoring it. - clear: Delete all stash entries.
+
+Important: - Plain git stash does not include untracked files by
+default. - -u includes untracked files but not ignored files. - -a /
+–all also includes ignored files; use carefully. - Stash is temporary
+storage, not a permanent backup. - A stash may fail to apply cleanly if
+the target files have changed.
+
+============================================================ 16. RESET:
+MOVE THE CURRENT BRANCH BACKWARD
+============================================================
+
+git reset moves the current branch pointer to another commit and can
+also change the staging area and working directory.
+
+HEAD~1: Means the first parent of the current commit, usually one commit
+before HEAD.
+
+Soft reset: git reset –soft HEAD~1
+
+Effect: - Moves the current branch pointer back one commit. - Keeps
+changes from the removed commit staged. - Does not discard those file
+changes.
+
+Mixed reset: git reset –mixed HEAD~1
+
+Effect: - Moves the current branch pointer back one commit. - Resets the
+staging area. - Keeps changes in the working directory as unstaged
+changes. - This is the default reset mode, so git reset HEAD~1 is
+equivalent to git reset –mixed HEAD~1.
+
+Hard reset: git reset –hard HEAD~1
+
+Effect: - Moves the current branch pointer back one commit. - Resets
+staging area and working directory to that commit. - Discards affected
+uncommitted changes and can make commits unreachable from the branch.
+
+Discard only unstaged changes in one file: git restore filename
+
+Unstage one file: git restore –staged filename
+
+Reset comparison: - –soft: Commit undone; changes staged. - –mixed:
+Commit undone; changes unstaged. - –hard: Commit undone; affected
+working changes discarded.
+
+Caution: - –hard is destructive. - Do not run it casually. - Do not
+rewrite published/shared branch history without team agreement. - Before
+resetting, inspect git status and git log. - If unsure, create a backup
+branch or stash important work first.
+
+============================================================ 17. REVERT:
+CREATE A NEW COMMIT THAT REVERSES AN OLD COMMIT
+============================================================
+
+Use case: A bad commit has already been pushed and teammates may have
+based work on it. You generally want to preserve shared history and
+reverse the change safely.
+
+Revert latest commit: git revert HEAD
+
+Revert a specific commit: git revert
+
+Revert without opening an editor: git revert –no-edit HEAD
+
+Abort an in-progress revert: git revert –abort
+
+How it works: Original history: A -> B -> C
+
+If C introduced a bug, reverting C creates a new commit D: A -> B -> C
+-> D
+
+D applies the inverse of C’s changes. C remains in history.
+
+Reset vs revert: - Reset moves a branch pointer and may rewrite
+history. - Revert creates a new commit that reverses an earlier
+commit. - Revert is generally preferred for undoing changes already
+shared on a team branch.
+
+A revert can itself have conflicts. Resolve the files, stage them and
+continue/complete the revert as Git instructs. Use git revert –abort to
+cancel an in-progress revert.
+
+============================================================ 18. REBASE:
+REPLAY COMMITS ON A NEW BASE
+============================================================
+
+Rebase takes commits from the current branch and replays them on top of
+another base commit. The replayed commits have new hashes.
+
+Example before rebase:
+
+    A---B---C  main
+         \
+          D---E  feature/payment
+
+If feature/payment is checked out and you run: git rebase main
+
+Git replays D and E on top of C:
+
+    A---B---C  main
+             \
+              D'---E'  feature/payment
+
+D’ and E’ are new commits. Their hashes differ from D and E.
+
+Rebase current branch onto main: git rebase main
+
+Continue after resolving a rebase conflict: git rebase –continue
+
+Abort the rebase: git rebase –abort
+
+Skip the current commit being replayed: git rebase –skip
+
+Caution: - Rebase rewrites commit history. - Avoid rebasing commits
+already shared with teammates unless the team agrees. - Do not rebase
+shared branches casually. - Resolve conflicts carefully and run tests
+afterward.
+
+Merge vs rebase: - Merge combines branch histories and may create a
+merge commit. - Rebase replays commits on a new base and usually
+produces linear history. - Merge preserves the original branch
+commits. - Rebase creates new commit hashes for replayed commits.
+
+============================================================ 19.
+IMPORTANT FLAGS AND SYMBOLS QUICK REFERENCE
+============================================================
+
+–global Apply Git config to the current OS user. –local Apply Git config
+to this repository. –oneline Compact commit history. –graph Draw
+branch/merge graph. –all Include all refs/branches in commands that
+support it. -a Meaning depends on command; e.g. git branch -a lists all
+branches. -u Meaning depends on command; git stash -u includes untracked
+files. -m Supply a message, e.g. commit -m or stash -m. -v Verbose
+output; e.g. git branch -v. -d Safely delete a merged branch. -D
+Force-delete a branch. –soft Reset branch pointer but keep changes
+staged. –mixed Reset branch pointer and unstage changes; default reset
+mode. –hard Reset branch pointer, index and working tree; destructive.
+–staged Compare staged changes or restore staging state, depending on
+command. –cached Alias for –staged in git diff. –no-edit Use the default
+message without opening an editor. –no-ff Create a merge commit even if
+fast-forward is possible.
+
+Remember: A flag’s meaning depends on the command. Do not assume -a, -u
+or -m always mean the same thing.
+
+============================================================ 20. DAILY
+OFFICE WORKFLOW CHEAT SHEET
+============================================================
+
+Start work: pwd git status git branch git remote -v git switch main git
+pull origin main
+
+Create feature branch: git switch -c feature/your-task
+
+Before committing: git status git diff git diff –check
+
+Stage and commit: git add git status git diff –staged git commit -m “Add
+meaningful change”
+
+Publish feature branch: git push -u origin feature/your-task
+
+If upstream is already configured: git push
+
+If you need to switch tasks with unfinished work: git stash -u -m “WIP:
+short description” git switch another-branch # Later: git switch
+feature/your-task git stash list git stash pop
+
+After code review feedback: Make requested changes. git status git diff
+git add git commit -m “Address review feedback” git push
+
+Before merging: Confirm target branch and team policy. Fetch/pull latest
+changes. Resolve conflicts. Run tests. Use the approved pull-request
+process.
+
+============================================================ 21. COMMON
+MISTAKES AND RECOVERY TIPS
+============================================================
+
+Mistake: Typing git branche or git branches. Correct: git branch
+
+Mistake: Assuming git add commits the file. Correct understanding: git
+add stages; git commit creates a commit.
+
+Mistake: Assuming git commit uploads to GitHub. Correct: git push
+publishes commits.
+
+Mistake: Confusing fetch and pull. Correct: fetch downloads; pull
+downloads and integrates.
+
+Mistake: Merging in the wrong direction. Remember: git merge
+feature/name merges feature/name into the branch currently checked out.
+
+Mistake: Using git restore on a file without checking changes. Safer
+first: git status git diff
+
+Mistake: Using git reset –hard to undo a shared commit. Safer approach
+for shared history: git revert
+
+Mistake: Rebasing a shared branch without agreement. Rebase can change
+commit hashes and disrupt collaborators.
+
+Mistake: Forgetting untracked files in stash. Use: git stash -u
+
+Mistake: Pushing directly to main when the team requires PRs. Follow
+repository/team policy and use a feature branch.
+
+Mistake: Force-pushing to fix a rejected push. Do not use –force or
+–force-with-lease unless you understand the situation and have
+permission.
+
+============================================================ 22.
+IMPORTANT INTERVIEW QUESTIONS — QUICK ANSWERS
+============================================================
+
+Q1. What is Git? Git is a distributed version control system used to
+track changes and collaborate on code.
+
+Q2. Git vs GitHub? Git tracks version history; GitHub hosts Git
+repositories and provides collaboration features.
+
+Q3. What is the staging area? It is the intermediate area where selected
+changes are prepared for the next commit.
+
+Q4. git add vs git commit? add stages changes; commit records staged
+changes in local history.
+
+Q5. Does commit upload code to GitHub? No. git push uploads local
+commits to the remote repository.
+
+Q6. git fetch vs git pull? Fetch downloads remote updates without
+integrating them; pull fetches and integrates them.
+
+Q7. What is a branch? A movable pointer to a commit that allows isolated
+development.
+
+Q8. Does creating a branch copy the entire project? No. A branch is a
+lightweight reference to a commit.
+
+Q9. git branch vs git switch -c? git branch name creates a branch but
+does not switch; git switch -c name creates and switches.
+
+Q10. What does git merge do? It integrates the named branch into the
+currently checked-out branch.
+
+Q11. Fast-forward vs three-way merge? Fast-forward moves the target
+pointer forward when histories have not diverged. Three-way merge
+combines diverged histories using a common ancestor.
+
+Q12. What is a merge conflict? A situation where Git cannot
+automatically combine changes, often because the same lines were changed
+differently.
+
+Q13. What does HEAD mean? HEAD identifies the currently checked-out
+commit, usually through the current branch.
+
+Q14. git diff vs git diff –staged? diff shows unstaged changes; diff
+–staged shows staged changes compared with HEAD.
+
+Q15. git restore vs git restore –staged? restore filename discards
+unstaged changes in that file; restore –staged filename unstages it but
+preserves working changes.
+
+Q16. git stash vs git commit? Stash temporarily shelves work; commit
+permanently records staged changes in repository history.
+
+Q17. git stash apply vs pop? apply restores and keeps the stash; pop
+restores and removes the stash entry if successful.
+
+Q18. git reset –soft vs –mixed vs –hard? Soft keeps changes staged;
+mixed keeps them unstaged; hard resets the working tree and staging area
+and can discard changes.
+
+Q19. git reset vs git revert? Reset moves the branch pointer and can
+rewrite history; revert creates a new commit that reverses an earlier
+commit.
+
+Q20. Why is revert safer for shared branches? It preserves existing
+history and adds a new inverse commit instead of moving shared branch
+history backwards.
+
+Q21. What is rebase? Rebase replays commits from the current branch onto
+a new base and creates new commit hashes.
+
+Q22. Merge vs rebase? Merge combines histories; rebase replays commits
+to create a generally linear history.
+
+Q23. Why avoid rebasing shared commits? Rebase changes commit hashes,
+which can cause history divergence and collaboration problems.
+
+Q24. What is origin? A conventional remote name, commonly pointing to
+the main GitHub repository.
+
+Q25. What does git push -u origin main do? It pushes main to origin and
+sets upstream tracking for the local branch.
+
+============================================================ 23.
+COMMANDS TO PRACTISE UNTIL THEY BECOME NATURAL
+============================================================
+
+    git status
+    git status --short
+    git branch
+    git branch -a
+    git switch main
+    git switch -c feature/name
+    git add .
+    git add <file>
+    git commit -m "message"
+    git log --oneline
+    git log --oneline --graph --all
+    git diff
+    git diff --staged
+    git show
+    git restore <file>
+    git restore --staged <file>
+    git remote -v
+    git fetch origin
+    git pull origin main
+    git push -u origin <branch>
+    git merge <branch>
+    git merge --abort
+    git stash -u
+    git stash list
+    git stash apply
+    git stash pop
+    git reset --soft HEAD~1
+    git reset --mixed HEAD~1
+    git reset --hard HEAD
+    git revert HEAD
+    git rebase main
+    git rebase --continue
+    git rebase --abort
+
+FINAL REMINDERS: 1. Always run git status before and after important
+operations. 2. Inspect changes with git diff before staging and git diff
+–staged before committing. 3. Commit small, logical changes with
+meaningful messages. 4. Work on feature branches when required by team
+workflow. 5. Fetch/pull latest changes according to team policy. 6.
+Never run destructive commands without understanding their effect. 7.
+Never rewrite shared history without team approval. 8. Follow the team’s
+pull-request, review and release process.
+
+END OF NOTES
