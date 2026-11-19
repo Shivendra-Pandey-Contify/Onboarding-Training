@@ -1,0 +1,290 @@
+PYTHON BASICS - DETAILED NOTES
+Topics: Introduction, Variables, Data Types, Input/Output, Operators, Conditions
+==============================================================
+
+
+1. INTRODUCTION TO PYTHON
+--------------------------------------------------------------
+- Python is a high-level, interpreted, general-purpose programming language.
+- Interpreted: code runs line by line, no separate compile step needed.
+- Easy to read, close to plain English, uses indentation instead of { }.
+- Used for: backend (Django, Flask, FastAPI), data science, automation, AI/ML, scripting.
+- Python files end with .py
+
+Running Python:
+  python3 file.py          # run a file
+  python3                  # open interactive shell (REPL), exit with exit() or Ctrl+D
+
+Check version:
+  python3 --version
+
+First program:
+  print("Hello, World!")
+
+Comments:
+  # single line comment
+  ''' multi-line string, often used as a comment / docstring '''
+
+Indentation:
+- Python uses 4 spaces to define a block (inside if, for, def, etc.).
+- Wrong indentation gives IndentationError.
+
+
+2. print() FUNCTION
+--------------------------------------------------------------
+print("Hello")                    # Hello
+print("a", "b", "c")              # a b c   (space between by default)
+print("a", "b", sep="-")          # a-b     (change separator)
+print("Hello", end="")            # no new line after printing
+print("Line1\nLine2")             # \n = new line
+print("Name:\tShivendra")         # \t = tab
+
+Escape characters:
+  \n  new line
+  \t  tab
+  \\  backslash
+  \"  double quote inside a string
+  \'  single quote inside a string
+
+
+3. VARIABLES
+--------------------------------------------------------------
+A variable is a name that points to a value stored in memory.
+
+  name = "Shivendra"
+  age = 22
+
+Rules for naming:
+- Can contain letters, digits and underscore (_)
+- Cannot start with a digit           (1name  -> invalid)
+- No spaces or special characters     (my-name, my name -> invalid)
+- Cannot use keywords                 (if, for, class, None, True ...)
+- Case-sensitive                      (age, Age and AGE are 3 different variables)
+
+Naming style (PEP 8):
+- snake_case for variables and functions:  emp_id, total_price
+- Use meaningful names:  salary is better than s
+
+Multiple assignment:
+  name, age, city = "Shivendra", 22, "Raebareli"     # different values
+  x = y = z = 0                                      # same value to all
+
+Reassigning:
+- A variable can be changed any time, even to a different type (dynamic typing).
+    age = 22
+    age = "twenty two"        # allowed in Python
+
+Swapping two variables:
+  a, b = b, a               # Python way, no temp variable needed
+
+Deleting a variable:
+  del a
+
+Constants:
+- Python has no real constants. By convention use CAPITAL letters:  PI = 3.14
+
+
+4. DATA TYPES
+--------------------------------------------------------------
+Python decides the type automatically (dynamic typing).
+
+Basic types:
+  int       whole numbers            22, -5, 0
+  float     decimal numbers          3.14, 99.5
+  str       text                     "Shivendra", 'Python'
+  bool      True or False            True, False   (capital T / F)
+  NoneType  represents "no value"    None
+
+Check the type:
+  type(22)            # <class 'int'>
+  type(3.14)          # <class 'float'>
+  type("hi")          # <class 'str'>
+  type(True)          # <class 'bool'>
+  type(None)          # <class 'NoneType'>
+
+Important points:
+- None means "nothing / empty / no value". It is not 0 and not "".
+- bool is actually a subtype of int: True == 1 and False == 0.
+- Strings can use single, double or triple quotes.
+
+Type conversion (type casting):
+  int("25")           # 25      string to int
+  float("3.5")        # 3.5
+  str(100)            # "100"
+  int(3.9)            # 3       decimal part is cut, not rounded
+  bool(0)             # False
+  bool("")            # False
+  bool("hello")       # True
+  int("abc")          # ValueError (cannot convert)
+
+Falsy values (treated as False): 0, 0.0, "", None, False, empty list/dict/set
+Everything else is truthy.
+
+Other (bigger) types you will learn next:
+  list [1,2,3] | tuple (1,2,3) | set {1,2,3} | dict {"a": 1}
+
+
+5. STRINGS (BASICS)
+--------------------------------------------------------------
+  s = "Shivendra"
+  len(s)              # 9
+  s.upper()           # "SHIVENDRA"
+  s.lower()           # "shivendra"
+  s[0]                # "S"  (indexing starts at 0)
+  s[-1]               # "a"  (last character)
+  s[0:4]              # "Shiv" (slicing, end index not included)
+  "Hi " + "there"     # "Hi there"  (concatenation)
+  "ab" * 3            # "ababab"    (repetition)
+
+Strings are immutable: you cannot change one character in place.
+
+
+6. f-STRINGS (FORMATTED STRINGS)
+--------------------------------------------------------------
+Put f before the quotes and write variables inside { }.
+
+  name = "Shivendra"
+  age = 22
+  print(f"My name is {name} and I am {age} years old")
+
+You can also run expressions inside { }:
+  print(f"After 5 years: {age + 5}")
+  print(f"Type: {type(name)}")
+
+Formatting numbers:
+  price = 1234.5678
+  print(f"{price:.2f}")        # 1234.57   (2 decimal places)
+  print(f"{price:,.2f}")       # 1,234.57  (with comma)
+
+Older ways (just to recognise):
+  "Name: %s" % name
+  "Name: {}".format(name)
+
+
+7. input() FUNCTION
+--------------------------------------------------------------
+- Reads what the user types from the keyboard.
+- ALWAYS returns a string, even if the user types a number.
+
+  name = input("Enter your name: ")           # str
+  age = int(input("Enter your age: "))        # converted to int
+  price = float(input("Enter price: "))       # converted to float
+
+Why convert?
+  a = input("Enter: ")        # user types 5
+  a + a                       # "55"  (string joining, not addition)
+  int(a) + int(a)             # 10
+
+Common error:
+  int("hello")                # ValueError, user typed text instead of a number
+
+
+8. OPERATORS
+--------------------------------------------------------------
+Arithmetic:
+  +    addition             5 + 2   = 7
+  -    subtraction          5 - 2   = 3
+  *    multiplication       5 * 2   = 10
+  /    division (float)     5 / 2   = 2.5     (10 / 2 = 5.0)
+  //   floor division       5 // 2  = 2       (-5 // 2 = -3, rounds down)
+  %    modulus (remainder)  5 % 2   = 1
+  **   power                5 ** 2  = 25
+
+Uses of %:
+  n % 2 == 0     -> n is even
+  n % 10         -> last digit of n
+
+Comparison (result is True/False):
+  ==  equal             !=  not equal
+  >   greater           <   less
+  >=  greater or equal  <=  less or equal
+
+Logical:
+  and   both conditions must be True
+  or    at least one must be True
+  not   reverses True/False
+
+Assignment:
+  =   assign           x = 5
+  +=  add and assign   x += 2     (x = x + 2)
+  -=  *=  /=  //=  %=  **=  work the same way
+
+Order of operations (high to low):
+  ()  ->  **  ->  * / // %  ->  + -  ->  comparison  ->  not  ->  and  ->  or
+
+Division by zero:
+  10 / 0      -> ZeroDivisionError
+  10 % 0      -> ZeroDivisionError
+
+
+9. CONDITIONS (if / elif / else)
+--------------------------------------------------------------
+Syntax:
+  if condition:
+      # runs if condition is True
+  elif another_condition:
+      # runs if the first was False and this is True
+  else:
+      # runs if none of the above were True
+
+Example:
+  marks = 72
+  if marks >= 90:
+      print("A")
+  elif marks >= 60:
+      print("B")
+  else:
+      print("C")
+
+Points:
+- Colon : after the condition is required.
+- Code inside must be indented.
+- Only the first matching block runs, the rest are skipped.
+- elif and else are optional. You can have many elif.
+- Brackets around the condition are optional:  if (a == 1):  same as  if a == 1:
+
+
+10. COMMON ERRORS AND FIXES
+--------------------------------------------------------------
+SyntaxError          missing colon, quote or bracket
+IndentationError     wrong spacing inside a block
+NameError            variable used before it was created, or typo in its name
+TypeError            wrong type used together, e.g. "5" + 2
+ValueError           right type, wrong value, e.g. int("abc")
+ZeroDivisionError    dividing or modulo by 0
+
+Examples:
+  print("Age: " + 22)           # TypeError -> use f"Age: {22}" or str(22)
+  Name = "A"; print(name)       # NameError -> Python is case-sensitive
+
+
+11. SMALL PROGRAM PATTERNS (WHAT YOU PRACTISED)
+--------------------------------------------------------------
+Pattern 1: take input -> convert -> calculate -> print
+  qty = int(input("Qty: "))
+  price = int(input("Price: "))
+  print(f"Total: {price * qty}")
+
+Pattern 2: choose an operation with if/elif
+  op = input("Enter operator: ")
+  if op == "+": ...
+  elif op == "-": ...
+  else: print("Invalid operator")
+
+Pattern 3: swap two values
+  a, b = b, a
+
+Pattern 4: print a profile / invoice using \n for new lines inside one f-string
+
+
+12. QUICK REVISION
+--------------------------------------------------------------
+- Python is interpreted, readable, indentation based.
+- Variable = name for a value; dynamic typing; case-sensitive; snake_case.
+- Basic types: int, float, str, bool, NoneType. Use type() to check.
+- input() returns str; convert with int() / float().
+- f"...{var}..." is the cleanest way to print values.
+- / gives float, // gives floored int, % gives remainder, ** gives power.
+- Compare with ==, join conditions with and / or / not.
+- if / elif / else runs only the first true block.
+- Read the error message; it tells you the line and the type of problem.
