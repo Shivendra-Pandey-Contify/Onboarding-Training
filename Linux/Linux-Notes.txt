@@ -336,11 +336,3 @@ Next steps:
 - Write a deploy.sh that actually runs
 
 Day 01 Status: Completed - Linux Command Fundamentals
-cd ~
-git clone https://github.com/Shivendra-Pandey-Contify/Onboarding-Training.git OT-fresh
-cp -r OT-fresh/.git ~/Onboarding-Training/
-cd ~/Onboarding-Training
-git status
-git add Python/
-git commit -m "Add Python day mastery"
-git push
