@@ -1,92 +1,71 @@
-# ---------------------------------------------------------
-# 1. Variables and f-string
-# ---------------------------------------------------------
+```python
+# PYTHON PRACTICE CODE (WITH COMMENTS)
+# Topics: variables, data types, input, operators, if/elif/else, swapping
 
-# Creating multiple variables in one line
+# storing all details in variables in one line
 name, age, city, company, salary = "Shivendra", 22, "Raebareli", "Contify", 30000
 
-# Using f-string to print variable values inside a sentence
+# printing details using f string
 print(f"My name is {name}, i am {age} years old, i am from {city},working at {company}, at salary of {salary} per month")
 
 
-# ---------------------------------------------------------
-# 2. Data types
-# ---------------------------------------------------------
+None_Type = None     # storing None value
+check = True         # storing True in a boolean variable
 
-None_Type = None     # Assigning None to a variable
-check = True         # Storing a boolean value
-
-# Checking the data type of different variables using type()
-print(f"{name} is a {type(name)}")            # Checking string type
-print(f"{age} is a {type(age)}")              # Checking integer type
-print(f"{check} is a {type(check)}")          # Checking boolean type
-print(f"{None_Type} is a {type(None_Type)}")  # Checking NoneType
+# checking the data type of variables using type()
+print(f"{name} is a {type(name)}")            # str
+print(f"{age} is a {type(age)}")              # int
+print(f"{check} is a {type(check)}")          # bool
+print(f"{None_Type} is a {type(None_Type)}")  # NoneType
 
 
-# ---------------------------------------------------------
-# 3. Calculator using if / elif / else
-# ---------------------------------------------------------
-
-# Taking two numbers from the user
-# Converting input into int because input() normally returns a string
+# taking two numbers from the user and converting them into int
 a = int(input("Enter a number: "))
 b = int(input("Enter a another number: "))
 
-# Taking the operator from the user
+# taking the operator as input
 c = input("Enter +, -, *, /. %, //, ** :")
 
-# Using if-elif to check which operator the user has entered
+# checking which operator the user has entered
 if(c == "+"):
-    print(f"{a}+{b} = {a+b}")        # Adding both numbers
+    print(f"{a}+{b} = {a+b}")        # addition
 elif(c == "-"):
-    print(f"{a}-{b} = {a-b}")        # Subtracting the numbers
+    print(f"{a}-{b} = {a-b}")        # subtraction
 elif(c == "*"):
-    print(f"{a}*{b} = {a*b}")        # Multiplying both numbers
+    print(f"{a}*{b} = {a*b}")        # multiplication
 elif(c == "/"):
-    print(f"{a}/{b}= {a/b}")         # Dividing both numbers
+    print(f"{a}/{b}= {a/b}")         # normal division
 elif(c == "%"):
-    print(f"{a}%{b} = {a%b}")        # Getting the remainder
+    print(f"{a}%{b} = {a%b}")        # finding remainder
 elif(c == "//"):
-    print(f"{a}//{b} = {a//b}")      # Getting the quotient without decimal
+    print(f"{a}//{b} = {a//b}")      # division without decimal
 elif(c == "**"):
-    print(f"{a}**{b}= {a**b}")       # Calculating power of a number
+    print(f"{a}**{b}= {a**b}")       # calculating power
 else:
-    # This block runs when none of the above conditions match
+    # if user enters any other operator
     print("Invalid operator")
 
 
-# ---------------------------------------------------------
-# 4. Age after 5 years
-# ---------------------------------------------------------
-
-# Asking the user to enter their current age
+# taking current age from the user
 age = int(input("Enter your age: "))
 
-# Adding 5 to the current age and printing the result
+# adding 5 years to the current age
 print(f"current age is {age} and after 5 year it will be {age+5}")
 
 
-# ---------------------------------------------------------
-# 5. Swapping two variables
-# ---------------------------------------------------------
-
-# Printing the values before swapping
+# printing values before swapping
 print(f"value of a before swapping a = {a} & b = {b}")
 
-# Swapping the values of a and b using Python's multiple assignment
+# swapping values of a and b in one line
 a, b = b, a
 
-# Printing the values after swapping
+# printing values after swapping
 print(f"value of a after swapping a = {a} & b = {b}")
 
 
-# ---------------------------------------------------------
-# 6. Employee profile
-# ---------------------------------------------------------
-
 '''Employee profile'''
 
-# Taking employee details as input from the user
+# taking employee details from the user
 name = input("Enter your name: ")
 emp_id = int(input("Enter your employee id: "))
 salary = int(input("Enter your salary: "))
@@ -94,21 +73,18 @@ dep = input("Enter your department: ")
 
 print("Welcome to the company")
 
-# Using \n to print each employee detail on a separate line
+# printing all employee details using \n to move to the next line
 print(f"Employee name : {name}\nEmployee id: {emp_id}\nEmployee salary: {salary}\nEmployee department: {dep}")
 
 
-# ---------------------------------------------------------
-# 7. Invoice
-# ---------------------------------------------------------
-
-# Taking product details from the user
+# taking product details from the user
 product = input("Enter product name: ")
 price = int(input("Enter product price: "))
 qty = int(input("Enter product quantity: "))
 
-# Calculating the total amount using price and quantity
+# calculating total amount by multiplying price and quantity
 total = price * qty
 
-# Printing all product details along with the final bill amount
+# printing the final invoice
 print(f"\n INVOICE\n Product name: {product}\n Product price: {price}\n Product quantity: {qty}\n Total amount: {total}")
+```
