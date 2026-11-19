@@ -1,0 +1,338 @@
+DAY 01 - LINUX COMMANDS FOR BACKEND DEVELOPMENT
+Fedora Workstation 45 (UTM) | bash | Ptyxis | 17 Nov 2026
+==============================================================
+
+1. FILESYSTEM NAVIGATION
+--------------------------------------------------------------
+pwd                     # print current directory
+ls                      # list files
+ls -l                   # long format (permissions, owner, size, date)
+ls -a                   # include hidden files
+ls -h                   # human-readable sizes (use with -l)
+ls -la                  # long + hidden
+ls -lh                  # long + human-readable
+ls -t                   # sort by modification time
+ls -R                   # recursive listing
+cd project/             # go into a directory
+cd                      # go home
+cd ~                    # go home
+cd -                    # go to previous directory
+cd ..                   # go to parent directory
+cd /                    # go to root
+mkdir logs              # create directory
+mkdir -p backend/apps   # create nested dirs, no error if they exist
+touch app.py            # create empty file / update timestamp
+
+Path types:
+  Absolute   /home/shivendra/linux-practice   (starts from /)
+  Relative   ../logs                          (from current dir)
+  Home       ~/Desktop                        (~ = /home/<user>)
+Linux is CASE-SENSITIVE: Desktop != desktop. Use Tab to autocomplete.
+
+Reading ls -l output:
+  drwxr-xr-x. 1 shivendra shivendra  80 Nov 17 10:42 logs
+  -rw-r--r--. 1 shivendra shivendra   0 Nov 17 10:41 notes.txt
+  d / -        directory / regular file
+  rwxr-xr-x    permissions: owner, group, others
+  .            SELinux context present (Fedora/RHEL)
+  1            hard link count
+  shivendra    owner, then group
+  80           size in bytes
+  Nov 17 10:42 last modified
+  logs         name
+
+
+2. FILE MANAGEMENT
+--------------------------------------------------------------
+cp notes.txt backup-notes.txt     # copy file
+cp python.txt projects/           # copy into directory
+cp -r projects backup-projects    # copy directory (-r required)
+mv old.py new.py                  # rename
+mv notes.txt logs/                # move into directory
+mv logs/mynotes.txt notes.txt     # move back and rename
+rm file.txt                       # delete (no recycle bin!)
+rm -i file.txt                    # ask before deleting
+rm -r folder/                     # delete directory recursively
+rm -rf folder/                    # force + recursive, no prompts (DANGEROUS)
+cat settings.py                   # show file content
+cat a.txt b.txt                   # print several files
+less application.log              # page through big file
+
+less keys:  q quit | /word search | Space next page | b previous page | G end | g start
+
+
+3. VIEWING AND WRITING FILE CONTENT
+--------------------------------------------------------------
+>    overwrite file with output
+>>   append output to file
+
+echo "Server started" > app.log           # create / overwrite
+echo "New request received" >> app.log    # append
+
+cat > notes.txt                # type text, Enter, then Ctrl+D (overwrites)
+cat >> notes.txt               # type text, Enter, then Ctrl+D (appends)
+(Press Enter BEFORE Ctrl+D, else no trailing newline and prompt merges with text)
+
+Generate test data:
+for i in $(seq 1 500); do
+  echo "Line $i: Fedora on UTM is running Linux practice with less command"
+done > ~/practice.txt
+
+  seq 1 500     numbers 1..500
+  $( ... )      command substitution
+  > ~/file      write loop output to file in home dir
+
+
+4. SEARCHING AND LOG ANALYSIS
+--------------------------------------------------------------
+grep "Python" python.txt          # case-sensitive search
+grep -n "Python" python.txt       # show line numbers
+grep -i "error" app.log           # ignore case
+grep -v "Python" python.txt       # invert (lines NOT matching)
+grep -c "error" app.log           # count matching lines
+grep -ic "error" app.log          # count, ignore case
+grep -in "error" app.log          # ignore case + line numbers
+grep -rn "ERROR" logs/            # recursive search with line numbers
+
+find . -name "*.py"               # by name (wildcards ok)
+find . -name "*.log"
+find . -type f                    # files only
+find . -type d                    # directories only
+find . -name "settings.py"        # locate Django settings
+
+head -n 20 app.log                # first 20 lines
+tail -n 50 app.log                # last 50 lines
+tail -f application.log           # follow log live (Ctrl+C to stop)
+
+Log analysis example:
+echo "INFO Server Started"              > logs/application.log
+echo "Error Database connection failed" >> logs/application.log
+echo "INFO User Loggedin"               >> logs/application.log
+echo "Error Invalid Credential"         >> logs/application.log
+
+grep "ERROR" logs/application.log        # nothing (log has "Error")
+grep "Error" logs/application.log        # 2 lines
+grep -in "error" logs/application.log    # 2:... and 4:...
+grep -ic "error" logs/application.log    # 2
+
+
+5. PERMISSIONS AND OWNERSHIP
+--------------------------------------------------------------
+chmod 755 deploy.sh              # rwxr-xr-x
+chmod 644 deploy.sh              # rw-r--r--
+chmod +x deploy.sh               # add execute for everyone
+chmod u+x deploy.sh              # add execute for owner only
+chmod go-w file.txt              # remove write from group and others
+sudo chown user:group file.py    # change owner and group
+
+Values: r=4  w=2  x=1
+  755 rwxr-xr-x  scripts, executables, directories
+  644 rw-r--r--  normal files
+  600 rw-------  private files (keys, secrets)
+  777 rwxrwxrwx  AVOID, insecure
+
+Calculation:
+  755 -> Owner 4+2+1=7 (rwx) | Group 4+0+1=5 (r-x) | Others 4+0+1=5 (r-x)
+  644 -> Owner 4+2+0=6 (rw-) | Group 4+0+0=4 (r--) | Others 4+0+0=4 (r--)
+
+Script permission example:
+touch backend/deploy.sh
+ls -l backend/deploy.sh          # -rw-r--r--  (not executable)
+chmod 755 backend/deploy.sh
+ls -l backend/deploy.sh          # -rwxr-xr-x  (executable)
+chmod 644 backend/deploy.sh      # back to 644
+
+
+6. PROCESS MANAGEMENT
+--------------------------------------------------------------
+ps aux                       # all running processes
+ps aux | grep python         # find python processes (grep shows itself too)
+pgrep -af python             # cleaner: PIDs + full command lines
+top                          # live monitor (q to quit)
+lsof -i :8000                # what is using port 8000
+kill PID                     # SIGTERM (15): graceful shutdown
+kill -9 PID                  # SIGKILL (9): force kill, last resort
+
+Prefer kill PID. Use kill -9 only if the process does not respond.
+
+Example (two terminals):
+  Terminal 1:  sleep 300
+  Terminal 2:  ps aux | grep sleep     # shows sleep 300 (PID 11673) + grep
+               kill 11673
+               ps aux | grep sleep     # only grep line remains
+
+ps aux columns:
+  USER owner | PID process id | %CPU %MEM usage | STAT state (S sleeping,
+  R running, + foreground) | COMMAND what started it
+
+top reading:
+  load average: 0.23, 0.10, 0.05    load over 1/5/15 min (low = idle)
+  Tasks: 240 total, 1 running       process counts
+  %Cpu(s): ... 96.3 id              96.3% CPU idle
+  MiB Mem: 3886.1 total, 255.8 free RAM (buff/cache is reclaimable)
+  MiB Swap: ... 1442.8 used         swap in use = RAM pressure
+
+
+7. DISK MANAGEMENT
+--------------------------------------------------------------
+df -h                        # all filesystems, human-readable
+df -h .                      # filesystem of current directory
+du -sh project/              # total size of a directory
+du -sh .                     # total size of current directory
+du -h -d 1 . | sort -h       # each subfolder size, smallest to largest
+
+Flags: -h human-readable | -s summary only | -d 1 depth 1 (du)
+
+df -h from practice:
+  /dev/vda3  30G   7.7G  22G   27%  /  and /home   main disk
+  /dev/vda2  2.0G  700M  1.2G  39%  /boot
+  /dev/vda1  599M  38M   562M  7%   /boot/efi      EFI partition
+  tmpfs      1.9G  8.0K  1.9G  1%   /tmp           lives in RAM
+  /dev/sda1  2.8G  2.8G  0     100% live ISO       read-only, normal
+
+
+8. IMPORTANT OPERATORS
+--------------------------------------------------------------
+.      current directory          find . -name "*.py"
+..     parent directory           cd ..
+~      home directory             cd ~
+-      previous directory         cd -
+*      wildcard                   ls *.txt
+>      redirect, overwrite        echo "x" > file
+>>     redirect, append           echo "x" >> file
+|      pipe output to command     ps aux | grep python
+&&     run next only if success   mkdir app && cd app
+;      run sequentially           cd app; ls
+sudo   run as admin               sudo chown user file
+
+
+9. PRACTICAL BACKEND USE CASES
+--------------------------------------------------------------
+find . -name "settings.py"          # locate Django settings
+grep -in "error" application.log    # search errors
+grep -ic "error" application.log    # count errors
+tail -f application.log             # live logs
+lsof -i :8000                       # who uses port 8000
+kill PID                            # stop process gracefully
+df -h                               # server disk space
+du -sh project/                     # project size
+chmod +x deploy.sh                  # make script executable
+du -h -d 1 . | sort -h              # biggest folders
+
+Troubleshooting workflow:
+ps aux | grep python                # 1. is the app running?
+lsof -i :8000                       # 2. is the port taken?
+tail -n 50 logs/application.log     # 3. check logs
+grep -in "error" logs/application.log
+df -h                               # 4. disk full?
+kill PID                            # 5. stop misbehaving process
+
+
+10. PRACTICE LOG
+--------------------------------------------------------------
+Practice 1: ~/linux-practice
+mkdir linux-practice && cd linux-practice
+touch notes.txt python.txt linux.txt
+mkdir projects logs
+ls ; ls -l ; ls -lh ; ls -la
+mkdir -p project/src/controller
+cp notes.txt backup-notes.txt
+cp python.txt projects/
+cp -r projects backup-projects
+mv notes.txt mynotes.txt
+mv mynotes.txt logs/
+mv logs/mynotes.txt notes.txt
+rm python.txt
+rm -i linux.txt
+rm -r backup-projects
+grep "Python" python.txt ; grep -n "Python" python.txt ; grep -v "Python" python.txt
+find . -name "python.txt" ; find . -name "*.py" ; find . -type d
+top ; df -h ; du -sh .
+
+Practice 2: ~/developer-workspace (backend simulation)
+mkdir developer-workspace && cd developer-workspace
+mkdir frontend backend database logs
+mkdir -p backend/apps/accounts
+touch backend/manage.py backend/requirements.txt
+touch frontend/index.html logs/application.log database/schema.sql
+find . -type f        # 5 files
+find . -type d        # 6 dirs (incl .)
+
+echo "Learning linux for backend Development" > backend/notes.txt
+cp backend/notes.txt backend/backup_notes.txt
+cat backend/notes.txt
+less backend/backup_notes.txt
+mv backend/backup_notes.txt backend/final_notes.txt
+
+Structure:
+developer-workspace/
+|-- backend/
+|   |-- apps/accounts/
+|   |-- manage.py
+|   `-- requirements.txt
+|-- database/schema.sql
+|-- frontend/index.html
+`-- logs/application.log
+
+
+11. MISTAKES AND LESSONS
+--------------------------------------------------------------
+1.  cd desktop -> No such file: case-sensitive. Use cd ~/Desktop, press Tab.
+2.  ls a -> cannot access: wrong path. Read the error, it names the path.
+3.  ls project failed, ls projects worked: check spelling with ls first.
+4.  cd ../logs failed: .. is home, not linux-practice. Use cd logs.
+5.  less -/practice.txt: typed -/ instead of ~/.
+6.  Loop wrote ~/practice.txt, not in current dir: ~ is home.
+    Use ./practice.txt or > practice.txt.
+7.  >> python.tx created stray file: >> silently creates files.
+    Fix: rm ~/linux-practice/python.tx
+8.  cat > notes.txt merged with prompt: press Enter, then Ctrl+D.
+9.  cd ~m / ~n / ~h failed: ~name means ANOTHER USER'S home.
+10. grep "ERROR" returned nothing: case-sensitive, use grep -i.
+11. ps aux | grep sleep shows 2 lines: grep matches itself.
+    Use pgrep -af sleep  or  grep "[s]leep".
+12. /dev/sda1 at 100%: mounted live ISO, read-only, ignore.
+
+
+12. QUICK CHEAT SHEET
+--------------------------------------------------------------
+# Navigation
+pwd   ls -la   cd ~   cd -   cd ..
+# Create
+mkdir -p a/b/c   touch file.txt
+# Copy / move / delete
+cp -r src/ dst/   mv old new   rm -i file   rm -r dir/
+# View / write
+cat file   less file   head -n 20 f   tail -n 50 f   tail -f f
+echo "x" > f   echo "x" >> f
+# Search
+grep -in "text" f   grep -rn "text" dir/   grep -v "text" f   grep -ic "text" f
+find . -name "*.py"   find . -type d   find . -type f
+# Permissions
+chmod 755 f   chmod 644 f   chmod +x f   sudo chown user:group f
+# Processes
+ps aux | grep name   pgrep -af name   top   kill PID   kill -9 PID
+lsof -i :8000
+# Disk
+df -h   du -sh .   du -h -d 1 . | sort -h
+
+
+13. KEY LEARNINGS
+--------------------------------------------------------------
+- Navigation, absolute vs relative paths, shortcuts . .. ~ -
+- Create/copy/move/rename/delete with -p, -r, -i
+- > overwrites, >> appends; both can create files by accident
+- less for big files; shell loops for test data
+- grep (-i -n -v -c -r) and find for searching
+- Case sensitivity matters in logs
+- Permissions: rwx, 755/644, chmod
+- ps, top, kill; prefer kill over kill -9
+- df -h and du -sh for disk usage
+
+Next steps:
+- Practise lsof -i :8000 with: python3 -m http.server 8000
+- Try sudo with chown on a test file
+- Learn sort, uniq, wc, awk for log analysis
+- Write a deploy.sh that actually runs
+
+Day 01 Status: Completed - Linux Command Fundamentals
